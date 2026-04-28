@@ -1,0 +1,435 @@
+[
+  {
+    "employeeId": "EMP-0001",
+    "nameZh": "王大明",
+    "nameEn": "David Wang",
+    "photoUrl": "https://drive.google.com/uc?export=view&id=1PC0JPzIq6Ly3OEtiLrFXraEfcyCfPm2c",
+    "state": "CA",
+    "city": "San Francisco",
+    "zipCode": 94102,
+    "sponsorName": "David Wang",
+    "sponsorEmail": "david.wang@example.com",
+    "rank": "SMD",
+    "email": "david.wang@example.com",
+    "phone": "+1-415-555-0100",
+    "lineId": "davidwang_tw",
+    "whatsapp": "+886-912-345-678",
+    "facebook": "https://facebook.com/davidwang",
+    "licenses": [
+      "Life",
+      "Investment",
+      "CFP"
+    ],
+    "skills": [
+      "Retirement Planning",
+      "Wealth Transfer",
+      "HNW Clients"
+    ],
+    "intro": "20-year senior advisor specializing in cross-generational wealth transfer.",
+    "joinDate": "2005-06-01",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0002",
+    "nameZh": "陳志明",
+    "nameEn": "John Chen",
+    "photoUrl": "https://drive.google.com/uc?export=view&id=1x8t7Hw4ZJNig5BZeYKBkb-kwtWzctPJP",
+    "state": "NY",
+    "city": "New York",
+    "zipCode": 10001,
+    "sponsorName": "David Wang",
+    "sponsorEmail": "david.wang@example.com",
+    "rank": "MD",
+    "email": "john.chen@example.com",
+    "phone": "+1-212-555-0200",
+    "lineId": "johnchen_tw",
+    "whatsapp": "",
+    "facebook": "https://facebook.com/johnchen",
+    "licenses": [
+      "Life",
+      "P&C",
+      "Securities"
+    ],
+    "skills": [
+      "Tax Planning",
+      "Business Insurance"
+    ],
+    "intro": "Focuses on business owner tax and insurance integration.",
+    "joinDate": "2015-03-15",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0003",
+    "nameZh": "林佳玲",
+    "nameEn": "Grace Lin",
+    "photoUrl": "https://drive.google.com/uc?export=view&id=1DRPjpvHhMSWUZV9heCDnriMkShaZiwYV",
+    "state": "TX",
+    "city": "Austin",
+    "zipCode": 73301,
+    "sponsorName": "John Chen",
+    "sponsorEmail": "john.chen@example.com",
+    "rank": "A",
+    "email": "grace.lin@example.com",
+    "phone": "+1-512-555-0300",
+    "lineId": "gracelin",
+    "whatsapp": "+886-987-654-321",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "Investment"
+    ],
+    "skills": [
+      "New Associate Training",
+      "FX Policies"
+    ],
+    "intro": "Helps new associates grow; specializes in FX and allocation.",
+    "joinDate": "2021-09-01",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0004",
+    "nameZh": "劉家豪",
+    "nameEn": "Jerry Liu",
+    "photoUrl": "https://ui-avatars.com/api/?name=JL&background=3730a3&color=fff&size=400&bold=true",
+    "state": "NY",
+    "city": "New York",
+    "zipCode": 10002,
+    "sponsorName": "David Wang",
+    "sponsorEmail": "david.wang@example.com",
+    "rank": "SMD",
+    "email": "jerry.liu@example.com",
+    "phone": "+1-212-555-0201",
+    "lineId": "jerryliu",
+    "whatsapp": "",
+    "facebook": "https://facebook.com/jerryliu",
+    "licenses": [
+      "Life",
+      "Investment",
+      "CFP",
+      "RFC"
+    ],
+    "skills": [
+      "HNW Clients",
+      "Wealth Transfer"
+    ],
+    "intro": "Senior advisor in NYC financial district with 18 years experience.",
+    "joinDate": "2008-01-20",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0005",
+    "nameZh": "白俊廷",
+    "nameEn": "Jeff Pai",
+    "photoUrl": "https://ui-avatars.com/api/?name=JP&background=065f46&color=fff&size=400&bold=true",
+    "state": "WA",
+    "city": "Seattle",
+    "zipCode": 98101,
+    "sponsorName": "David Wang",
+    "sponsorEmail": "david.wang@example.com",
+    "rank": "MD",
+    "email": "jeff.pai@example.com",
+    "phone": "+1-206-555-0600",
+    "lineId": "jeffpai",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "Investment",
+      "CFP"
+    ],
+    "skills": [
+      "HNW Clients",
+      "Retirement Planning"
+    ],
+    "intro": "Seattle tech industry advisor specializing in executive financial planning.",
+    "joinDate": "2014-04-10",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0006",
+    "nameZh": "鄭明德",
+    "nameEn": "Tom Cheng",
+    "photoUrl": "https://ui-avatars.com/api/?name=TC&background=9a3412&color=fff&size=400&bold=true",
+    "state": "TX",
+    "city": "Houston",
+    "zipCode": 77001,
+    "sponsorName": "David Wang",
+    "sponsorEmail": "david.wang@example.com",
+    "rank": "MD",
+    "email": "tom.cheng@example.com",
+    "phone": "+1-713-555-0301",
+    "lineId": "tomcheng",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "P&C",
+      "CFP"
+    ],
+    "skills": [
+      "Asset Allocation",
+      "HNW Clients"
+    ],
+    "intro": "Energy sector specialist with extensive Houston market experience.",
+    "joinDate": "2014-08-20",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0007",
+    "nameZh": "杜美雲",
+    "nameEn": "Mei Tu",
+    "photoUrl": "https://ui-avatars.com/api/?name=MT&background=9f1239&color=fff&size=400&bold=true",
+    "state": "IL",
+    "city": "Chicago",
+    "zipCode": 60601,
+    "sponsorName": "David Wang",
+    "sponsorEmail": "david.wang@example.com",
+    "rank": "MD",
+    "email": "mei.tu@example.com",
+    "phone": "+1-312-555-0800",
+    "lineId": "meitu",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "P&C",
+      "CFP"
+    ],
+    "skills": [
+      "Business Insurance",
+      "Business Owners"
+    ],
+    "intro": "Chicago small business specialist with 11 years of experience.",
+    "joinDate": "2015-09-01",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0008",
+    "nameZh": "馬志遠",
+    "nameEn": "Andrew Ma",
+    "photoUrl": "https://ui-avatars.com/api/?name=AM&background=5b21b6&color=fff&size=400&bold=true",
+    "state": "MA",
+    "city": "Boston",
+    "zipCode": 2101,
+    "sponsorName": "Jerry Liu",
+    "sponsorEmail": "jerry.liu@example.com",
+    "rank": "MD",
+    "email": "andrew.ma@example.com",
+    "phone": "+1-617-555-0500",
+    "lineId": "andrewma",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "P&C",
+      "CFP"
+    ],
+    "skills": [
+      "Business Owners",
+      "Retirement Planning"
+    ],
+    "intro": "Boston biotech industry advisor.",
+    "joinDate": "2015-02-01",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0009",
+    "nameZh": "盧建成",
+    "nameEn": "Luke Lu",
+    "photoUrl": "https://ui-avatars.com/api/?name=LL&background=075985&color=fff&size=400&bold=true",
+    "state": "FL",
+    "city": "Miami",
+    "zipCode": 33101,
+    "sponsorName": "David Wang",
+    "sponsorEmail": "david.wang@example.com",
+    "rank": "MD",
+    "email": "luke.lu@example.com",
+    "phone": "+1-305-555-0700",
+    "lineId": "lukelu",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "CFP"
+    ],
+    "skills": [
+      "Cross-border Families",
+      "FX Policies"
+    ],
+    "intro": "Miami specialist for cross-border families and Latin American clients.",
+    "joinDate": "2016-03-15",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0010",
+    "nameZh": "陳怡君",
+    "nameEn": "Jenny Chen",
+    "photoUrl": "https://ui-avatars.com/api/?name=JC&background=9f1239&color=fff&size=400&bold=true",
+    "state": "CA",
+    "city": "San Jose",
+    "zipCode": 95101,
+    "sponsorName": "Amy Lee",
+    "sponsorEmail": "amy.lee@example.com",
+    "rank": "A",
+    "email": "jenny.chen@example.com",
+    "phone": "+1-408-555-0103",
+    "lineId": "jennychen",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life"
+    ],
+    "skills": [
+      "Retirement Planning"
+    ],
+    "intro": "Silicon Valley tech professional retirement planning specialist.",
+    "joinDate": "2018-08-15",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0011",
+    "nameZh": "林俊宏",
+    "nameEn": "Jason Lin",
+    "photoUrl": "https://ui-avatars.com/api/?name=JL&background=065f46&color=fff&size=400&bold=true",
+    "state": "CA",
+    "city": "San Francisco",
+    "zipCode": 94103,
+    "sponsorName": "David Wang",
+    "sponsorEmail": "david.wang@example.com",
+    "rank": "A",
+    "email": "jason.lin@example.com",
+    "phone": "+1-415-555-0104",
+    "lineId": "jasonlin",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "Investment"
+    ],
+    "skills": [
+      "FX Policies"
+    ],
+    "intro": "FX and USD policy planning specialist.",
+    "joinDate": "2019-03-01",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0012",
+    "nameZh": "范瑞英",
+    "nameEn": "Rita Fan",
+    "photoUrl": "https://ui-avatars.com/api/?name=RF&background=5b21b6&color=fff&size=400&bold=true",
+    "state": "PA",
+    "city": "Philadelphia",
+    "zipCode": 19101,
+    "sponsorName": "Jerry Liu",
+    "sponsorEmail": "jerry.liu@example.com",
+    "rank": "MD",
+    "email": "rita.fan@example.com",
+    "phone": "+1-215-555-1200",
+    "lineId": "ritafan",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "CFP"
+    ],
+    "skills": [
+      "Wealth Transfer"
+    ],
+    "intro": "Philadelphia wealth transfer specialist.",
+    "joinDate": "2016-07-20",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0013",
+    "nameZh": "羅文昇",
+    "nameEn": "Wade Lo",
+    "photoUrl": "https://ui-avatars.com/api/?name=WL&background=9a3412&color=fff&size=400&bold=true",
+    "state": "CO",
+    "city": "Denver",
+    "zipCode": 80201,
+    "sponsorName": "David Wang",
+    "sponsorEmail": "david.wang@example.com",
+    "rank": "A",
+    "email": "wade.lo@example.com",
+    "phone": "+1-303-555-1000",
+    "lineId": "wadelo",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life"
+    ],
+    "skills": [
+      "Retirement Planning"
+    ],
+    "intro": "Denver retirement planning advisor.",
+    "joinDate": "2020-06-15",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0014",
+    "nameZh": "朱家欣",
+    "nameEn": "Mia Chu",
+    "photoUrl": "https://ui-avatars.com/api/?name=MC&background=075985&color=fff&size=400&bold=true",
+    "state": "AZ",
+    "city": "Phoenix",
+    "zipCode": 85001,
+    "sponsorName": "Tom Cheng",
+    "sponsorEmail": "tom.cheng@example.com",
+    "rank": "A",
+    "email": "mia.chu@example.com",
+    "phone": "+1-602-555-1100",
+    "lineId": "miachu",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "P&C"
+    ],
+    "skills": [],
+    "intro": "Phoenix area insurance specialist.",
+    "joinDate": "2021-03-10",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  },
+  {
+    "employeeId": "EMP-0015",
+    "nameZh": "方偉倫",
+    "nameEn": "Leon Fang",
+    "photoUrl": "https://ui-avatars.com/api/?name=LF&background=3730a3&color=fff&size=400&bold=true",
+    "state": "HI",
+    "city": "Honolulu",
+    "zipCode": 96801,
+    "sponsorName": "David Wang",
+    "sponsorEmail": "david.wang@example.com",
+    "rank": "A",
+    "email": "leon.fang@example.com",
+    "phone": "+1-808-555-2000",
+    "lineId": "leonfang",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life"
+    ],
+    "skills": [
+      "Cross-border Families"
+    ],
+    "intro": "Honolulu specialist for cross-border Pacific Rim families.",
+    "joinDate": "2019-12-10",
+    "status": "active",
+    "lastUpdated": "2026-04-22"
+  }
+]
