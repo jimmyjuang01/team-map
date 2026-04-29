@@ -44,7 +44,8 @@ function MemberPopup({ member, onClose, onViewProfile }) {
       bottom:     20,
       left:       '50%',
       transform:  'translateX(-50%)',
-      width:      280,
+      width:      '85vw',
+      maxWidth:   300,
       background: '#171717',
       border:     '1px solid ' + colors.border + '40',
       boxShadow:  '0 8px 32px rgba(0,0,0,0.6)',
@@ -63,10 +64,15 @@ function MemberPopup({ member, onClose, onViewProfile }) {
         }}>
           {member.rank}
         </span>
-        <button onClick={onClose} style={{
-          background: 'none', border: 'none',
-          color: '#525252', cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: 0,
-        }}>
+        <button
+          onClick={function(e) { e.stopPropagation(); onClose() }}
+          onTouchEnd={function(e) { e.stopPropagation(); e.preventDefault(); onClose() }}
+          style={{
+            background: 'none', border: 'none',
+            color: '#525252', cursor: 'pointer',
+            fontSize: 20, lineHeight: 1, padding: '4px 8px',
+          }}
+        >
           {'\u2715'}
         </button>
       </div>
@@ -109,9 +115,10 @@ function MemberPopup({ member, onClose, onViewProfile }) {
       )}
 
       <button
-        onClick={function() { onViewProfile(member) }}
+        onClick={function(e) { e.stopPropagation(); onViewProfile(member) }}
+        onTouchEnd={function(e) { e.stopPropagation(); e.preventDefault(); onViewProfile(member) }}
         style={{
-          display: 'block', width: '100%', padding: '10px',
+          display: 'block', width: '100%', padding: '12px',
           background: colors.border,
           color: member.rank === 'MD' || member.rank === 'TA' ? 'white' : '#0a0a0a',
           border: 'none', cursor: 'pointer', fontFamily: 'monospace',
@@ -144,16 +151,14 @@ function buildClusterIndex(members, filteredIds) {
     })
   })
 
-  var index = new Supercluster({ radius: 60, maxZoom: 16, minPoints: 2 })
-  index.load(points)
-  return index
+  var idx = new Supercluster({ radius: 60, maxZoom: 16, minPoints: 2 })
+  idx.load(points)
+  return idx
 }
 
-// Cluster bubble — uses wrapper + inner to fix hover position
 function createClusterEl(count, hasMatchedMembers) {
   var baseSize = count < 5 ? 36 : count < 15 ? 44 : 56
 
-  // Outer wrapper — fixed size, centers the inner circle
   var wrapper = document.createElement('div')
   wrapper.style.width          = baseSize + 'px'
   wrapper.style.height         = baseSize + 'px'
@@ -162,7 +167,6 @@ function createClusterEl(count, hasMatchedMembers) {
   wrapper.style.justifyContent = 'center'
   wrapper.style.cursor         = 'pointer'
 
-  // Inner circle — this is what grows on hover
   var inner = document.createElement('div')
   inner.style.width           = baseSize + 'px'
   inner.style.height          = baseSize + 'px'
@@ -182,22 +186,26 @@ function createClusterEl(count, hasMatchedMembers) {
 
   wrapper.appendChild(inner)
 
-  // Hover — resize inner, wrapper stays fixed (avoids position jump)
- wrapper.addEventListener('mouseenter', function() {
-  var hoverSize           = baseSize * 1.35
-  wrapper.style.width     = hoverSize + 'px'
-  wrapper.style.height    = hoverSize + 'px'
-  inner.style.width       = hoverSize + 'px'
-  inner.style.height      = hoverSize + 'px'
-  inner.style.fontSize    = (hoverSize * 0.32) + 'px'
-})
-wrapper.addEventListener('mouseleave', function() {
-  wrapper.style.width     = baseSize + 'px'
-  wrapper.style.height    = baseSize + 'px'
-  inner.style.width       = baseSize + 'px'
-  inner.style.height      = baseSize + 'px'
-  inner.style.fontSize    = (baseSize * 0.32) + 'px'
-})
+  var expand = function() {
+    var hoverSize        = baseSize * 1.35
+    wrapper.style.width  = hoverSize + 'px'
+    wrapper.style.height = hoverSize + 'px'
+    inner.style.width    = hoverSize + 'px'
+    inner.style.height   = hoverSize + 'px'
+    inner.style.fontSize = (hoverSize * 0.32) + 'px'
+  }
+  var collapse = function() {
+    wrapper.style.width  = baseSize + 'px'
+    wrapper.style.height = baseSize + 'px'
+    inner.style.width    = baseSize + 'px'
+    inner.style.height   = baseSize + 'px'
+    inner.style.fontSize = (baseSize * 0.32) + 'px'
+  }
+
+  wrapper.addEventListener('mouseenter', expand)
+  wrapper.addEventListener('mouseleave', collapse)
+  wrapper.addEventListener('touchstart', function(e) { e.stopPropagation(); expand() }, { passive: true })
+  wrapper.addEventListener('touchend',   function(e) { e.stopPropagation(); collapse() }, { passive: true })
 
   return wrapper
 }
@@ -247,7 +255,7 @@ function createPinEl(member, isMatch) {
   wrapper.appendChild(el)
 
   if (isMatch) {
-    wrapper.addEventListener('mouseenter', function() {
+    var expand = function() {
       var newSize            = size * 1.35
       wrapper.style.width    = newSize + 'px'
       wrapper.style.height   = newSize + 'px'
@@ -255,15 +263,22 @@ function createPinEl(member, isMatch) {
       el.style.height        = newSize + 'px'
       el.style.fontSize      = (newSize * 0.35) + 'px'
       el.style.boxShadow     = '0 0 14px ' + colors.border + '90'
-    })
-    wrapper.addEventListener('mouseleave', function() {
+    }
+    var collapse = function() {
       wrapper.style.width    = size + 'px'
       wrapper.style.height   = size + 'px'
       el.style.width         = size + 'px'
       el.style.height        = size + 'px'
       el.style.fontSize      = (size * 0.35) + 'px'
       el.style.boxShadow     = '0 0 8px ' + colors.border + '60'
-    })
+    }
+
+    wrapper.addEventListener('mouseenter', expand)
+    wrapper.addEventListener('mouseleave', collapse)
+    wrapper.addEventListener('touchstart', function(e) {
+      e.stopPropagation()
+      expand()
+    }, { passive: true })
   }
 
   return wrapper
@@ -282,10 +297,10 @@ export default function MapView({ members, filteredIds, onMemberClick }) {
     if (mapRef.current) return
 
     var map = new maplibregl.Map({
-      container: mapContainerRef.current,
-      style:     MAP_STYLE,
-      center:    [-98.5, 39.5],
-      zoom:      3.5,
+      container:          mapContainerRef.current,
+      style:              MAP_STYLE,
+      center:             [-98.5, 39.5],
+      zoom:               3.5,
       attributionControl: false,
     })
 
@@ -348,16 +363,21 @@ export default function MapView({ members, filteredIds, onMemberClick }) {
         }
 
         var displayCount = filteredIds
-          ? leaves.filter(function(leaf) { return filteredIds.has(leaf.properties.member.employeeId) }).length
+          ? leaves.filter(function(leaf) {
+              return filteredIds.has(leaf.properties.member.employeeId)
+            }).length
           : count
 
         var clusterEl = createClusterEl(displayCount, hasMatched)
 
-        clusterEl.addEventListener('click', function(e) {
+        var handleClusterTap = function(e) {
           e.stopPropagation()
+          if (e.cancelable) e.preventDefault()
           var expansionZoom = Math.min(index.getClusterExpansionZoom(clusterId), 18)
           map.easeTo({ center: [lng, lat], zoom: expansionZoom + 1 })
-        })
+        }
+        clusterEl.addEventListener('click',    handleClusterTap)
+        clusterEl.addEventListener('touchend', handleClusterTap)
 
         var clusterMarker = new maplibregl.Marker({ element: clusterEl, anchor: 'center' })
           .setLngLat([lng, lat]).addTo(map)
@@ -369,10 +389,13 @@ export default function MapView({ members, filteredIds, onMemberClick }) {
         var pinEl   = createPinEl(member, isMatch)
 
         if (isMatch) {
-          pinEl.addEventListener('click', function(e) {
+          var handlePinTap = function(e) {
             e.stopPropagation()
+            if (e.cancelable) e.preventDefault()
             setPopupMember(member)
-          })
+          }
+          pinEl.addEventListener('click',    handlePinTap)
+          pinEl.addEventListener('touchend', handlePinTap)
         }
 
         var pinMarker = new maplibregl.Marker({ element: pinEl, anchor: 'center' })
