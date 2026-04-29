@@ -46,8 +46,20 @@ export const CITY_COORDINATES = {
 }
 
 // Get coordinates for a member
-// Returns null if city not found
-export function getMemberCoordinates(member) {
+// Adds small random offset if multiple members share same city
+// to prevent complete overlap
+export function getMemberCoordinates(member, index = 0) {
   const key = `${member.city},${member.state}`
-  return CITY_COORDINATES[key] || null
+  const base = CITY_COORDINATES[key]
+  if (!base) return null
+
+  // Add slight offset based on index to avoid complete overlap
+  // Each pin shifts by ~200 meters in a spiral pattern
+  const angle  = (index * 137.5 * Math.PI) / 180 // golden angle
+  const radius = index === 0 ? 0 : 0.002 + (Math.floor(index / 6) * 0.001)
+
+  return {
+    lat: base.lat + radius * Math.sin(angle),
+    lng: base.lng + radius * Math.cos(angle),
+  }
 }
