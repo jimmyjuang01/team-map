@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import LoginScreen from './components/LoginScreen'
 import Header from './components/Header'
 import MapView from './components/MapView'
+import ProfileModal from './components/ProfileModal'
 import { useMembers } from './hooks/useMembers'
 
 export default function App() {
@@ -20,6 +21,12 @@ export default function App() {
   const { members, filteredMembers, loading, error } = useMembers(
     searchQuery, rankFilter, licenseFilter
   )
+
+  const hasActiveFilters = searchQuery || rankFilter.length > 0 || licenseFilter.length > 0
+
+  const filteredIds = hasActiveFilters
+    ? new Set(filteredMembers.map(m => m.employeeId))
+    : null
 
   if (!isAuthenticated) {
     return <LoginScreen onLogin={() => setIsAuthenticated(true)} />
@@ -41,7 +48,6 @@ export default function App() {
         filteredCount={filteredMembers.length}
       />
 
-      {/* Map container */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
 
         {loading && (
@@ -68,44 +74,19 @@ export default function App() {
 
         {!loading && !error && (
           <MapView
-            members={filteredMembers}
+            members={members}
+            filteredIds={filteredIds}
             onMemberClick={setSelectedMember}
           />
         )}
 
       </div>
 
-      {/* Selected member bottom bar */}
       {selectedMember && (
-        <div
-          style={{
-            position: 'fixed', bottom: 0, left: 0, right: 0,
-            background: '#171717', borderTop: '1px solid #262626',
-            padding: '1rem', zIndex: 50, cursor: 'pointer',
-          }}
-          onClick={() => setSelectedMember(null)}
-        >
-          <div style={{
-            maxWidth: 512, margin: '0 auto',
-            display: 'flex', alignItems: 'center', gap: 16,
-          }}>
-            <div>
-              <p style={{ color: '#fef3c7', fontFamily: 'Georgia, serif', fontSize: 16 }}>
-                {selectedMember.nameZh}
-              </p>
-              <p style={{ color: '#737373', fontFamily: 'monospace', fontSize: 12, marginTop: 4 }}>
-                {selectedMember.nameEn} · {selectedMember.rank} · {selectedMember.city}, {selectedMember.state}
-              </p>
-            </div>
-            <button style={{
-              marginLeft: 'auto', color: '#525252', fontFamily: 'monospace',
-              fontSize: 11, letterSpacing: '0.2em', background: 'none',
-              border: 'none', cursor: 'pointer',
-            }}>
-              CLOSE
-            </button>
-          </div>
-        </div>
+        <ProfileModal
+          member={selectedMember}
+          onClose={() => setSelectedMember(null)}
+        />
       )}
 
     </div>
