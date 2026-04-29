@@ -1,5 +1,6 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useCallback } from 'react'
 import maplibregl from 'maplibre-gl'
+import Supercluster from 'supercluster'
 import { getMemberCoordinates } from '../data/cityCoordinates'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
@@ -123,14 +124,77 @@ function MemberPopup({ member, onClose, onViewProfile }) {
   )
 }
 
-function createPin(member, isMatch, cityCounter, onClickFn) {
-  var key    = member.city + ',' + member.state
-  var index  = cityCounter[key] || 0
-  cityCounter[key] = index + 1
+function buildClusterIndex(members, filteredIds) {
+  var points = []
+  members.forEach(function(member) {
+    var coords = getMemberCoordinates(member, 0)
+    if (!coords) return
+    var isMatch = !filteredIds || filteredIds.has(member.employeeId)
+    points.push({
+      type: 'Feature',
+      geometry: { type: 'Point', coordinates: [coords.lng, coords.lat] },
+      properties: { member: member, isMatch: isMatch },
+    })
+  })
+  var index = new Supercluster({ radius: 60, maxZoom: 16, minPoints: 2 })
+  index.load(points)
+  return index
+}
 
-  var coords = getMemberCoordinates(member, index)
-  if (!coords) return null
+// Cluster bubble — uses wrapper + inner to fix hover position
+function createClusterEl(count, hasMatchedMembers) {
+  var baseSize = count < 5 ? 36 : count < 15 ? 44 : 56
 
+  // Outer wrapper — fixed size, centers the inner circle
+  var wrapper = document.createElement('div')
+  wrapper.style.width          = baseSize + 'px'
+  wrapper.style.height         = baseSize + 'px'
+  wrapper.style.display        = 'flex'
+  wrapper.style.alignItems     = 'center'
+  wrapper.style.justifyContent = 'center'
+  wrapper.style.cursor         = 'pointer'
+
+  // Inner circle — this is what grows on hover
+  var inner = document.createElement('div')
+  inner.style.width           = baseSize + 'px'
+  inner.style.height          = baseSize + 'px'
+  inner.style.borderRadius    = '50%'
+  inner.style.background      = hasMatchedMembers ? 'rgba(251,191,36,0.15)' : 'rgba(40,40,40,0.5)'
+  inner.style.border          = '2px solid ' + (hasMatchedMembers ? '#fbbf24' : '#333333')
+  inner.style.display         = 'flex'
+  inner.style.alignItems      = 'center'
+  inner.style.justifyContent  = 'center'
+  inner.style.color           = hasMatchedMembers ? '#fef3c7' : '#555555'
+  inner.style.fontSize        = (baseSize * 0.32) + 'px'
+  inner.style.fontFamily      = 'Georgia, serif'
+  inner.style.fontWeight      = '500'
+  inner.style.boxShadow       = hasMatchedMembers ? '0 0 20px rgba(251,191,36,0.3)' : 'none'
+  inner.style.transition      = 'width 0.15s, height 0.15s, font-size 0.15s'
+  inner.textContent           = count
+
+  wrapper.appendChild(inner)
+
+  // Hover — resize inner, wrapper stays fixed (avoids position jump)
+ wrapper.addEventListener('mouseenter', function() {
+  var hoverSize           = baseSize * 1.35
+  wrapper.style.width     = hoverSize + 'px'
+  wrapper.style.height    = hoverSize + 'px'
+  inner.style.width       = hoverSize + 'px'
+  inner.style.height      = hoverSize + 'px'
+  inner.style.fontSize    = (hoverSize * 0.32) + 'px'
+})
+wrapper.addEventListener('mouseleave', function() {
+  wrapper.style.width     = baseSize + 'px'
+  wrapper.style.height    = baseSize + 'px'
+  inner.style.width       = baseSize + 'px'
+  inner.style.height      = baseSize + 'px'
+  inner.style.fontSize    = (baseSize * 0.32) + 'px'
+})
+
+  return wrapper
+}
+
+function createPinEl(member, isMatch) {
   var colors    = RANK_COLORS[member.rank] || RANK_COLORS.TA
   var size      = RANK_SIZE[member.rank]   || 20
   var nameParts = (member.nameEn || '').split(' ')
@@ -152,25 +216,25 @@ function createPin(member, isMatch, cityCounter, onClickFn) {
   wrapper.style.zIndex         = isMatch ? '10' : '1'
 
   var el = document.createElement('div')
-  el.style.width           = pinSize + 'px'
-  el.style.height          = pinSize + 'px'
-  el.style.borderRadius    = '50%'
-  el.style.border          = '1px solid ' + pinBorder
-  el.style.background      = pinBg
-  el.style.color           = pinColor
-  el.style.display         = 'flex'
-  el.style.alignItems      = 'center'
-  el.style.justifyContent  = 'center'
-  el.style.fontSize        = (pinSize * 0.35) + 'px'
-  el.style.fontWeight      = '600'
-  el.style.fontFamily      = 'monospace'
-  el.style.cursor          = isMatch ? 'pointer' : 'default'
-  el.style.boxShadow       = pinShadow
-  el.style.transition      = 'all 0.15s'
-  el.style.userSelect      = 'none'
-  el.style.pointerEvents   = 'all'
-  el.textContent           = isMatch ? initials : ''
-  el.title                 = member.nameZh + ' · ' + member.rank
+  el.style.width          = pinSize + 'px'
+  el.style.height         = pinSize + 'px'
+  el.style.borderRadius   = '50%'
+  el.style.border         = '1px solid ' + pinBorder
+  el.style.background     = pinBg
+  el.style.color          = pinColor
+  el.style.display        = 'flex'
+  el.style.alignItems     = 'center'
+  el.style.justifyContent = 'center'
+  el.style.fontSize       = (pinSize * 0.35) + 'px'
+  el.style.fontWeight     = '600'
+  el.style.fontFamily     = 'monospace'
+  el.style.cursor         = isMatch ? 'pointer' : 'default'
+  el.style.boxShadow      = pinShadow
+  el.style.transition     = 'all 0.15s'
+  el.style.userSelect     = 'none'
+  el.style.pointerEvents  = 'all'
+  el.textContent          = isMatch ? initials : ''
+  el.title                = member.nameZh + ' · ' + member.rank
 
   wrapper.appendChild(el)
 
@@ -192,19 +256,16 @@ function createPin(member, isMatch, cityCounter, onClickFn) {
       el.style.fontSize      = (size * 0.35) + 'px'
       el.style.boxShadow     = '0 0 8px ' + colors.border + '60'
     })
-    wrapper.addEventListener('click', function(e) {
-      e.stopPropagation()
-      onClickFn(member)
-    })
   }
 
-  return { wrapper: wrapper, coords: coords }
+  return wrapper
 }
 
 export default function MapView({ members, filteredIds, onMemberClick }) {
   var mapContainerRef = useRef(null)
   var mapRef          = useRef(null)
   var markersRef      = useRef([])
+  var clusterIndexRef = useRef(null)
   var popupState      = useState(null)
   var popupMember     = popupState[0]
   var setPopupMember  = popupState[1]
@@ -234,50 +295,107 @@ export default function MapView({ members, filteredIds, onMemberClick }) {
     }
   }, [])
 
+  var renderMarkers = useCallback(function() {
+    var map   = mapRef.current
+    var index = clusterIndexRef.current
+    if (!map || !index) return
+
+    markersRef.current.forEach(function(m) { m.remove() })
+    markersRef.current = []
+
+    var zoom   = Math.floor(map.getZoom())
+    var bounds = map.getBounds()
+    var bbox   = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()]
+    var clusters = index.getClusters(bbox, zoom)
+
+    clusters.sort(function(a, b) {
+      var aMatch = a.properties.cluster ? true : (!filteredIds || filteredIds.has(a.properties.member.employeeId))
+      var bMatch = b.properties.cluster ? true : (!filteredIds || filteredIds.has(b.properties.member.employeeId))
+      return aMatch === bMatch ? 0 : aMatch ? 1 : -1
+    })
+
+    clusters.forEach(function(feature) {
+      var lng = feature.geometry.coordinates[0]
+      var lat = feature.geometry.coordinates[1]
+
+      if (feature.properties.cluster) {
+        var clusterId  = feature.properties.cluster_id
+        var count      = feature.properties.point_count
+        var leaves     = index.getLeaves(clusterId, Infinity)
+        var hasMatched = leaves.some(function(leaf) {
+          return !filteredIds || filteredIds.has(leaf.properties.member.employeeId)
+        })
+
+        if (filteredIds && !hasMatched) {
+          var dot = document.createElement('div')
+          dot.style.width        = '8px'
+          dot.style.height       = '8px'
+          dot.style.borderRadius = '50%'
+          dot.style.background   = '#1a1a1a'
+          dot.style.border       = '1px solid #2a2a2a'
+          var dotMarker = new maplibregl.Marker({ element: dot, anchor: 'center' })
+            .setLngLat([lng, lat]).addTo(map)
+          markersRef.current.push(dotMarker)
+          return
+        }
+
+        var displayCount = filteredIds
+          ? leaves.filter(function(leaf) { return filteredIds.has(leaf.properties.member.employeeId) }).length
+          : count
+
+        var clusterEl = createClusterEl(displayCount, hasMatched)
+
+        clusterEl.addEventListener('click', function(e) {
+          e.stopPropagation()
+          var expansionZoom = Math.min(index.getClusterExpansionZoom(clusterId), 18)
+          map.easeTo({ center: [lng, lat], zoom: expansionZoom + 1 })
+        })
+
+        var clusterMarker = new maplibregl.Marker({ element: clusterEl, anchor: 'center' })
+          .setLngLat([lng, lat]).addTo(map)
+        markersRef.current.push(clusterMarker)
+
+      } else {
+        var member  = feature.properties.member
+        var isMatch = !filteredIds || filteredIds.has(member.employeeId)
+        var pinEl   = createPinEl(member, isMatch)
+
+        if (isMatch) {
+          pinEl.addEventListener('click', function(e) {
+            e.stopPropagation()
+            setPopupMember(member)
+          })
+        }
+
+        var pinMarker = new maplibregl.Marker({ element: pinEl, anchor: 'center' })
+          .setLngLat([lng, lat]).addTo(map)
+        markersRef.current.push(pinMarker)
+      }
+    })
+  }, [filteredIds, setPopupMember])
+
   useEffect(function() {
     var map = mapRef.current
     if (!map) return
 
-    function addMarkers() {
-      markersRef.current.forEach(function(m) { m.remove() })
-      markersRef.current = []
+    clusterIndexRef.current = buildClusterIndex(members, filteredIds)
 
-      // Draw dimmed pins first, matched pins on top
-      var dimmed  = members.filter(function(m) {
-        return filteredIds && !filteredIds.has(m.employeeId)
-      })
-      var matched = members.filter(function(m) {
-        return !filteredIds || filteredIds.has(m.employeeId)
-      })
-      var ordered = dimmed.concat(matched)
-
-      // cityCounter is shared so offset logic stays consistent
-      var cityCounter = {}
-
-      ordered.forEach(function(member) {
-        var isMatch = !filteredIds || filteredIds.has(member.employeeId)
-        var result  = createPin(member, isMatch, cityCounter, setPopupMember)
-        if (!result) return
-
-        var marker = new maplibregl.Marker({ element: result.wrapper, anchor: 'center' })
-          .setLngLat([result.coords.lng, result.coords.lat])
-          .addTo(map)
-
-        markersRef.current.push(marker)
-      })
-    }
+    var doRender = function() { renderMarkers() }
 
     if (map.isStyleLoaded()) {
-      addMarkers()
+      doRender()
     } else {
-      map.once('load', addMarkers)
+      map.once('load', doRender)
     }
 
+    map.on('moveend', doRender)
+
     return function() {
+      map.off('moveend', doRender)
       markersRef.current.forEach(function(m) { m.remove() })
       markersRef.current = []
     }
-  }, [members, filteredIds])
+  }, [members, filteredIds, renderMarkers])
 
   return (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
