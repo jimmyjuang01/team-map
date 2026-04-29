@@ -125,10 +125,17 @@ function MemberPopup({ member, onClose, onViewProfile }) {
 }
 
 function buildClusterIndex(members, filteredIds) {
-  var points = []
+  var points      = []
+  var cityCounter = {}
+
   members.forEach(function(member) {
-    var coords = getMemberCoordinates(member, 0)
+    var key    = member.city + ',' + member.state
+    var index  = cityCounter[key] || 0
+    cityCounter[key] = index + 1
+
+    var coords  = getMemberCoordinates(member, index)
     if (!coords) return
+
     var isMatch = !filteredIds || filteredIds.has(member.employeeId)
     points.push({
       type: 'Feature',
@@ -136,6 +143,7 @@ function buildClusterIndex(members, filteredIds) {
       properties: { member: member, isMatch: isMatch },
     })
   })
+
   var index = new Supercluster({ radius: 60, maxZoom: 16, minPoints: 2 })
   index.load(points)
   return index
