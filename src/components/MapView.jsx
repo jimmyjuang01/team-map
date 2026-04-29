@@ -50,7 +50,7 @@ function MemberPopup({ member, onClose, onViewProfile }) {
       zIndex:     100,
       fontFamily: 'sans-serif',
     }}>
-      {/* Top bar with rank and close */}
+      {/* Top bar */}
       <div style={{
         display:        'flex',
         justifyContent: 'space-between',
@@ -58,13 +58,13 @@ function MemberPopup({ member, onClose, onViewProfile }) {
         padding:        '10px 12px 0',
       }}>
         <span style={{
-          background: colors.border,
-          color:      member.rank === 'MD' || member.rank === 'TA' ? 'white' : '#0a0a0a',
-          fontSize:   10,
-          fontWeight: 700,
+          background:    colors.border,
+          color:         member.rank === 'MD' || member.rank === 'TA' ? 'white' : '#0a0a0a',
+          fontSize:      10,
+          fontWeight:    700,
           letterSpacing: '0.15em',
-          padding:    '2px 8px',
-          fontFamily: 'monospace',
+          padding:       '2px 8px',
+          fontFamily:    'monospace',
         }}>
           {member.rank}
         </span>
@@ -82,7 +82,6 @@ function MemberPopup({ member, onClose, onViewProfile }) {
 
       {/* Member info */}
       <div style={{ padding: '12px', display: 'flex', gap: 12, alignItems: 'center' }}>
-        {/* Avatar */}
         <div style={{
           width:          52,
           height:         52,
@@ -100,8 +99,6 @@ function MemberPopup({ member, onClose, onViewProfile }) {
         }}>
           {initials}
         </div>
-
-        {/* Name + location */}
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{
             color:      '#fef3c7',
@@ -121,10 +118,10 @@ function MemberPopup({ member, onClose, onViewProfile }) {
             {member.nameEn}
           </p>
           <p style={{
-            color:      '#525252',
-            fontSize:   10,
-            fontFamily: 'monospace',
-            margin:     '4px 0 0',
+            color:         '#525252',
+            fontSize:      10,
+            fontFamily:    'monospace',
+            margin:        '4px 0 0',
             letterSpacing: '0.1em',
           }}>
             {member.city}, {member.state}
@@ -137,13 +134,13 @@ function MemberPopup({ member, onClose, onViewProfile }) {
         <div style={{ padding: '0 12px 10px', display: 'flex', gap: 4, flexWrap: 'wrap' }}>
           {member.licenses.slice(0, 4).map(l => (
             <span key={l} style={{
-              background:    'rgba(120,53,15,0.3)',
-              border:        '1px solid #78350f',
-              color:         '#fcd34d',
-              fontSize:      10,
-              padding:       '2px 6px',
-              borderRadius:  3,
-              fontFamily:    'monospace',
+              background:   'rgba(120,53,15,0.3)',
+              border:       '1px solid #78350f',
+              color:        '#fcd34d',
+              fontSize:     10,
+              padding:      '2px 6px',
+              borderRadius: 3,
+              fontFamily:   'monospace',
             }}>
               {l}
             </span>
@@ -198,7 +195,6 @@ export default function MapView({ members, onMemberClick }) {
       'bottom-right'
     )
 
-    // Click on map background closes popup
     map.on('click', () => setPopupMember(null))
 
     mapRef.current = map
@@ -235,6 +231,7 @@ export default function MapView({ members, onMemberClick }) {
           .join('')
           .slice(0, 2) || '??'
 
+        // Wrapper — controls clickable area and hover zone
         const wrapper = document.createElement('div')
         wrapper.style.cssText = `
           width: ${size}px;
@@ -243,8 +240,10 @@ export default function MapView({ members, onMemberClick }) {
           align-items: center;
           justify-content: center;
           cursor: pointer;
+          transition: width 0.15s, height 0.15s;
         `
 
+        // Pin circle
         const el = document.createElement('div')
         el.style.cssText = `
           width: ${size}px;
@@ -270,17 +269,23 @@ export default function MapView({ members, onMemberClick }) {
 
         wrapper.appendChild(el)
 
+        // Hover — resize both wrapper and el together
         wrapper.addEventListener('mouseenter', () => {
-          el.style.width     = `${size * 1.35}px`
-          el.style.height    = `${size * 1.35}px`
-          el.style.fontSize  = `${size * 1.35 * 0.35}px`
-          el.style.boxShadow = `0 0 14px ${colors.border}90`
+          const newSize          = size * 1.35
+          wrapper.style.width    = `${newSize}px`
+          wrapper.style.height   = `${newSize}px`
+          el.style.width         = `${newSize}px`
+          el.style.height        = `${newSize}px`
+          el.style.fontSize      = `${newSize * 0.35}px`
+          el.style.boxShadow     = `0 0 14px ${colors.border}90`
         })
         wrapper.addEventListener('mouseleave', () => {
-          el.style.width     = `${size}px`
-          el.style.height    = `${size}px`
-          el.style.fontSize  = `${size * 0.35}px`
-          el.style.boxShadow = `0 0 8px ${colors.border}60`
+          wrapper.style.width    = `${size}px`
+          wrapper.style.height   = `${size}px`
+          el.style.width         = `${size}px`
+          el.style.height        = `${size}px`
+          el.style.fontSize      = `${size * 0.35}px`
+          el.style.boxShadow     = `0 0 8px ${colors.border}60`
         })
         wrapper.addEventListener('click', e => {
           e.stopPropagation()
@@ -316,7 +321,7 @@ export default function MapView({ members, onMemberClick }) {
         <MemberPopup
           member={popupMember}
           onClose={() => setPopupMember(null)}
-          onViewProfile={(member) => {
+          onViewProfile={member => {
             setPopupMember(null)
             onMemberClick(member)
           }}
@@ -325,25 +330,33 @@ export default function MapView({ members, onMemberClick }) {
 
       {/* Legend */}
       <div style={{
-        position: 'absolute', bottom: 48, left: 16,
-        background: 'rgba(10,10,10,0.85)',
-        border: '1px solid #262626',
-        padding: '8px 12px',
+        position:       'absolute',
+        bottom:         48,
+        left:           16,
+        background:     'rgba(10,10,10,0.85)',
+        border:         '1px solid #262626',
+        padding:        '8px 12px',
         backdropFilter: 'blur(8px)',
-        zIndex: 1,
+        zIndex:         1,
       }}>
         <p style={{
-          color: '#525252', fontSize: 9, letterSpacing: '0.2em',
-          marginBottom: 6, fontFamily: 'monospace', textTransform: 'uppercase',
+          color:         '#525252',
+          fontSize:      9,
+          letterSpacing: '0.2em',
+          marginBottom:  6,
+          fontFamily:    'monospace',
+          textTransform: 'uppercase',
         }}>
           Rank
         </p>
         {Object.entries(RANK_COLORS).map(([rank, colors]) => (
           <div key={rank} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
             <div style={{
-              width: 10, height: 10, borderRadius: '50%',
-              border: `2px solid ${colors.border}`,
-              background: colors.bg,
+              width:        10,
+              height:       10,
+              borderRadius: '50%',
+              border:       `2px solid ${colors.border}`,
+              background:   colors.bg,
             }} />
             <span style={{ color: '#a3a3a3', fontSize: 10, fontFamily: 'monospace' }}>
               {rank}
@@ -354,8 +367,13 @@ export default function MapView({ members, onMemberClick }) {
 
       {/* Attribution */}
       <div style={{
-        position: 'absolute', bottom: 8, right: 48,
-        color: '#404040', fontSize: 9, fontFamily: 'monospace', zIndex: 1,
+        position:   'absolute',
+        bottom:     8,
+        right:      48,
+        color:      '#404040',
+        fontSize:   9,
+        fontFamily: 'monospace',
+        zIndex:     1,
       }}>
         © OpenStreetMap · © CARTO
       </div>
