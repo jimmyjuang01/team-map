@@ -7,6 +7,7 @@ export default function Header({
   rankFilter, setRankFilter,
   licenseFilter, setLicenseFilter,
   totalCount, filteredCount,
+  stats,
 }) {
   const [showFilters, setShowFilters] = useState(false)
 
@@ -17,6 +18,12 @@ export default function Header({
     A:   'bg-stone-400 text-neutral-900',
     TA:  'bg-stone-600 text-white',
   }
+
+  const ALL_LICENSES = [
+    'Life', 'P&C', 'Investment',
+    'Series 6', 'Series 7', 'Series 63', 'Series 65', 'Series 66',
+    'CFP', 'RFC', 'IARFC', 'ChFC', 'CLU',
+  ]
 
   const toggleRank = (rank) => {
     setRankFilter(prev =>
@@ -36,22 +43,14 @@ export default function Header({
     setLicenseFilter([])
   }
 
-  const hasFilters = searchQuery || rankFilter.length > 0 || licenseFilter.length > 0
+  const hasFilters  = searchQuery || rankFilter.length > 0 || licenseFilter.length > 0
   const filterCount = rankFilter.length + licenseFilter.length
 
-  const ALL_LICENSES = [
-    'Life', 'P&C', 'Investment',
-    'Series 6', 'Series 7', 'Series 63', 'Series 65', 'Series 66',
-    'CFP', 'RFC', 'IARFC', 'ChFC', 'CLU',
-  ]
-
   return (
-    <header className="border-b border-neutral-900 px-4 md:px-8 py-4 bg-neutral-950 sticky top-0 z-40">
+    <header className="border-b border-neutral-900 px-4 md:px-8 py-3 bg-neutral-950 sticky top-0 z-40">
 
-      {/* Top row */}
+      {/* Top row: Brand + Mode toggle */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
-
-        {/* Brand */}
         <div className="flex items-center gap-3">
           <div className="w-5 h-5 border-2 border-amber-400 rotate-45 flex-shrink-0" />
           <div>
@@ -67,35 +66,38 @@ export default function Header({
           </div>
         </div>
 
-        {/* Mode toggle */}
         <div className="flex border border-neutral-800">
           <button
             onClick={() => setMode('number')}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs tracking-widest font-mono transition-colors
-              ${mode === 'number'
-                ? 'bg-amber-400 text-neutral-900'
-                : 'text-neutral-500 hover:text-amber-400'
-              }`}
+              ${mode === 'number' ? 'bg-amber-400 text-neutral-900' : 'text-neutral-500 hover:text-amber-400'}`}
           >
             <Hash size={12} /> NUM
           </button>
           <button
             onClick={() => setMode('avatar')}
             className={`flex items-center gap-1.5 px-3 py-1.5 text-xs tracking-widest font-mono transition-colors
-              ${mode === 'avatar'
-                ? 'bg-amber-400 text-neutral-900'
-                : 'text-neutral-500 hover:text-amber-400'
-              }`}
+              ${mode === 'avatar' ? 'bg-amber-400 text-neutral-900' : 'text-neutral-500 hover:text-amber-400'}`}
           >
             <Users size={12} /> AVATAR
           </button>
         </div>
       </div>
 
+      {/* Stats row — always visible, shows 0 while loading */}
+      <div className="flex items-center gap-4 mt-3 pb-3 border-b border-neutral-900">
+        <StatItem value={stats.totalMembers} label="Members" />
+        <div className="w-px h-6 bg-neutral-800" />
+        <StatItem value={stats.totalStates}  label="States" />
+        <div className="w-px h-6 bg-neutral-800" />
+        <StatItem value={stats.totalCities}  label="Cities" />
+        <div className="ml-auto text-[10px] text-neutral-600 font-mono">
+          {filteredCount}/{totalCount} shown
+        </div>
+      </div>
+
       {/* Search + Filter row */}
       <div className="flex items-center gap-2 mt-3 flex-wrap">
-
-        {/* Search */}
         <div className="flex items-center gap-2 border border-neutral-800 px-3 py-1.5 flex-1 min-w-[160px]">
           <Search size={14} className="text-neutral-600 flex-shrink-0" />
           <input
@@ -112,7 +114,6 @@ export default function Header({
           )}
         </div>
 
-        {/* Filter button */}
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={`flex items-center gap-1.5 px-3 py-1.5 border text-xs tracking-widest font-mono transition-colors
@@ -129,7 +130,6 @@ export default function Header({
           )}
         </button>
 
-        {/* Clear */}
         {hasFilters && (
           <button
             onClick={clearFilters}
@@ -138,18 +138,11 @@ export default function Header({
             CLEAR
           </button>
         )}
-
-        {/* Count */}
-        <div className="ml-auto text-xs text-neutral-500 font-mono">
-          {filteredCount}/{totalCount}
-        </div>
       </div>
 
       {/* Filter panel */}
       {showFilters && (
         <div className="mt-3 p-3 border border-neutral-800 bg-neutral-900/30 space-y-3">
-
-          {/* Rank */}
           <div>
             <p className="text-[10px] text-neutral-500 tracking-widest mb-2 font-mono">RANK</p>
             <div className="flex gap-1.5 flex-wrap">
@@ -169,7 +162,6 @@ export default function Header({
             </div>
           </div>
 
-          {/* License */}
           <div>
             <p className="text-[10px] text-neutral-500 tracking-widest mb-2 font-mono">LICENSE</p>
             <div className="flex gap-1 flex-wrap">
@@ -188,9 +180,24 @@ export default function Header({
               ))}
             </div>
           </div>
-
         </div>
       )}
     </header>
+  )
+}
+
+function StatItem({ value, label }) {
+  return (
+    <div className="flex flex-col items-center min-w-[48px]">
+      <span
+        className="text-xl text-amber-200 leading-none"
+        style={{ fontFamily: 'Georgia, serif' }}
+      >
+        {value}
+      </span>
+      <span className="text-[9px] text-neutral-600 tracking-[0.2em] uppercase font-mono mt-1">
+        {label}
+      </span>
+    </div>
   )
 }

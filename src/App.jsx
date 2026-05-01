@@ -18,9 +18,13 @@ export default function App() {
     if (auth === 'true') setIsAuthenticated(true)
   }, [])
 
-  const { members, filteredMembers, loading, error } = useMembers(
-    searchQuery, rankFilter, licenseFilter
-  )
+  const {
+    members,
+    filteredMembers,
+    loading,
+    error,
+    stats,
+  } = useMembers(searchQuery, rankFilter, licenseFilter)
 
   const hasActiveFilters = searchQuery || rankFilter.length > 0 || licenseFilter.length > 0
 
@@ -46,6 +50,7 @@ export default function App() {
         setLicenseFilter={setLicenseFilter}
         totalCount={members.length}
         filteredCount={filteredMembers.length}
+        stats={stats}
       />
 
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
