@@ -23,12 +23,12 @@ export function useMembers(searchQuery, rankFilter, licenseFilter) {
 
         if (error) throw error
 
-        // Convert from snake_case to camelCase to match existing frontend
         const converted = data.map(m => ({
           employeeId:   m.employee_id,
           nameZh:       m.name_zh,
           nameEn:       m.name_en,
           photoUrl:     m.photo_url,
+          gender:       m.gender,
           state:        m.state,
           city:         m.city,
           zipCode:      m.zip_code,
@@ -60,7 +60,6 @@ export function useMembers(searchQuery, rankFilter, licenseFilter) {
     fetchMembers()
   }, [])
 
-  // Filter members
   const filteredMembers = useMemo(() => {
     return members.filter(m => {
       if (searchQuery) {
@@ -75,17 +74,14 @@ export function useMembers(searchQuery, rankFilter, licenseFilter) {
     })
   }, [members, searchQuery, rankFilter, licenseFilter])
 
-  // Stats — always returns an object, never undefined
   const stats = useMemo(() => {
     if (members.length === 0) return DEFAULT_STATS
-
     const states = new Set()
     const cities = new Set()
     members.forEach(m => {
       if (m.state) states.add(m.state)
       if (m.city && m.state) cities.add(`${m.city},${m.state}`)
     })
-
     return {
       totalMembers: members.length,
       totalStates:  states.size,

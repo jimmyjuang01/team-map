@@ -6,6 +6,9 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 
 const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
 
+const DEFAULT_MALE_URL   = 'https://yvqohxqzwgngninjxxrx.supabase.co/storage/v1/object/public/avatars/default_male.png'
+const DEFAULT_FEMALE_URL = 'https://yvqohxqzwgngninjxxrx.supabase.co/storage/v1/object/public/avatars/default_female.png'
+
 const RANK_COLORS = {
   SMD: { border: '#fbbf24', bg: '#451a03' },
   MD:  { border: '#d97706', bg: '#3b1f00' },
@@ -20,6 +23,8 @@ const RANK_SIZE = {
   TA:  16,
 }
 
+const AVATAR_SIZE = 36  // Fixed size for all avatar pins
+
 const AVATAR_COLORS = [
   '#9f1239','#115e59','#3730a3','#9a3412',
   '#065f46','#5b21b6','#075985','#9d174d',
@@ -33,10 +38,18 @@ function getAvatarBg(name) {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length]
 }
 
+function getPhotoUrl(member) {
+  if (member.photoUrl && !member.photoUrl.includes('ui-avatars')) {
+    return member.photoUrl
+  }
+  return member.gender === 'F' ? DEFAULT_FEMALE_URL : DEFAULT_MALE_URL
+}
+
 function MemberPopup({ member, onClose, onViewProfile }) {
   const colors   = RANK_COLORS[member.rank] || RANK_COLORS.TA
   const initials = member.nameEn?.split(' ').map(n => n[0]).join('').slice(0, 2) || '??'
   const avatarBg = getAvatarBg(member.nameEn || '')
+  const photoUrl = getPhotoUrl(member)
 
   return (
     <div style={{
@@ -78,10 +91,23 @@ function MemberPopup({ member, onClose, onViewProfile }) {
       </div>
 
       <div style={{ padding: '12px', display: 'flex', gap: 12, alignItems: 'center' }}>
+        <img
+          src={photoUrl}
+          alt={member.nameEn}
+          onError={function(e) {
+            e.target.style.display = 'none'
+            e.target.nextSibling.style.display = 'flex'
+          }}
+          style={{
+            width: 52, height: 52, borderRadius: '50%',
+            objectFit: 'cover', border: '2px solid ' + colors.border,
+            flexShrink: 0,
+          }}
+        />
         <div style={{
           width: 52, height: 52, borderRadius: '50%',
           background: avatarBg, border: '2px solid ' + colors.border,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          display: 'none', alignItems: 'center', justifyContent: 'center',
           color: 'white', fontSize: 18, fontWeight: 600,
           fontFamily: 'monospace', flexShrink: 0,
         }}>
@@ -187,12 +213,12 @@ function createClusterEl(count, hasMatchedMembers) {
   wrapper.appendChild(inner)
 
   var expand = function() {
-    var hoverSize        = baseSize * 1.35
-    wrapper.style.width  = hoverSize + 'px'
-    wrapper.style.height = hoverSize + 'px'
-    inner.style.width    = hoverSize + 'px'
-    inner.style.height   = hoverSize + 'px'
-    inner.style.fontSize = (hoverSize * 0.32) + 'px'
+    var s            = baseSize * 1.35
+    wrapper.style.width  = s + 'px'
+    wrapper.style.height = s + 'px'
+    inner.style.width    = s + 'px'
+    inner.style.height   = s + 'px'
+    inner.style.fontSize = (s * 0.32) + 'px'
   }
   var collapse = function() {
     wrapper.style.width  = baseSize + 'px'
@@ -210,16 +236,13 @@ function createClusterEl(count, hasMatchedMembers) {
   return wrapper
 }
 
-function createPinEl(member, isMatch) {
+function createPinEl(member, isMatch, mode) {
   var colors    = RANK_COLORS[member.rank] || RANK_COLORS.TA
-  var size      = RANK_SIZE[member.rank]   || 20
+  var size      = mode === 'avatar' ? AVATAR_SIZE : (RANK_SIZE[member.rank] || 20)
   var nameParts = (member.nameEn || '').split(' ')
   var initials  = nameParts.map(function(n) { return n[0] }).join('').slice(0, 2) || '??'
 
   var pinBorder = isMatch ? colors.border : '#2a2a2a'
-  var pinBg     = isMatch ? colors.bg     : '#1a1a1a'
-  var pinColor  = isMatch ? colors.border : '#2a2a2a'
-  var pinShadow = isMatch ? ('0 0 8px ' + colors.border + '60') : 'none'
   var pinSize   = isMatch ? size : 8
 
   var wrapper = document.createElement('div')
@@ -231,60 +254,126 @@ function createPinEl(member, isMatch) {
   wrapper.style.cursor         = isMatch ? 'pointer' : 'default'
   wrapper.style.zIndex         = isMatch ? '10' : '1'
 
-  var el = document.createElement('div')
-  el.style.width          = pinSize + 'px'
-  el.style.height         = pinSize + 'px'
-  el.style.borderRadius   = '50%'
-  el.style.border         = '1px solid ' + pinBorder
-  el.style.background     = pinBg
-  el.style.color          = pinColor
-  el.style.display        = 'flex'
-  el.style.alignItems     = 'center'
-  el.style.justifyContent = 'center'
-  el.style.fontSize       = (pinSize * 0.35) + 'px'
-  el.style.fontWeight     = '600'
-  el.style.fontFamily     = 'monospace'
-  el.style.cursor         = isMatch ? 'pointer' : 'default'
-  el.style.boxShadow      = pinShadow
-  el.style.transition     = 'all 0.15s'
-  el.style.userSelect     = 'none'
-  el.style.pointerEvents  = 'all'
-  el.textContent          = isMatch ? initials : ''
-  el.title                = member.nameZh + ' · ' + member.rank
+  if (mode === 'avatar' && isMatch) {
+    // Avatar mode: show photo
+    var photoUrl = getPhotoUrl(member)
+    var avatarBg = getAvatarBg(member.nameEn || '')
 
-  wrapper.appendChild(el)
+    var img = document.createElement('img')
+    img.src    = photoUrl
+    img.width  = pinSize
+    img.height = pinSize
+    img.style.width        = pinSize + 'px'
+    img.style.height       = pinSize + 'px'
+    img.style.borderRadius = '50%'
+    img.style.objectFit    = 'cover'
+    img.style.border       = '2px solid ' + pinBorder
+    img.style.boxShadow    = '0 0 8px ' + colors.border + '60'
+    img.style.transition   = 'width 0.15s, height 0.15s'
+    img.style.display      = 'block'
 
-  if (isMatch) {
-    var expand = function() {
-      var newSize            = size * 1.35
-      wrapper.style.width    = newSize + 'px'
-      wrapper.style.height   = newSize + 'px'
-      el.style.width         = newSize + 'px'
-      el.style.height        = newSize + 'px'
-      el.style.fontSize      = (newSize * 0.35) + 'px'
-      el.style.boxShadow     = '0 0 14px ' + colors.border + '90'
-    }
-    var collapse = function() {
-      wrapper.style.width    = size + 'px'
-      wrapper.style.height   = size + 'px'
-      el.style.width         = size + 'px'
-      el.style.height        = size + 'px'
-      el.style.fontSize      = (size * 0.35) + 'px'
-      el.style.boxShadow     = '0 0 8px ' + colors.border + '60'
+    // Fallback to initials if image fails
+    img.onerror = function() {
+      img.style.display = 'none'
+      fallback.style.display = 'flex'
     }
 
-    wrapper.addEventListener('mouseenter', expand)
-    wrapper.addEventListener('mouseleave', collapse)
+    var fallback = document.createElement('div')
+    fallback.style.width          = pinSize + 'px'
+    fallback.style.height         = pinSize + 'px'
+    fallback.style.borderRadius   = '50%'
+    fallback.style.background     = avatarBg
+    fallback.style.border         = '2px solid ' + pinBorder
+    fallback.style.display        = 'none'
+    fallback.style.alignItems     = 'center'
+    fallback.style.justifyContent = 'center'
+    fallback.style.color          = 'white'
+    fallback.style.fontSize       = (pinSize * 0.35) + 'px'
+    fallback.style.fontFamily     = 'monospace'
+    fallback.style.fontWeight     = '600'
+    fallback.textContent          = initials
+
+    wrapper.appendChild(img)
+    wrapper.appendChild(fallback)
+
+    wrapper.addEventListener('mouseenter', function() {
+      var s = pinSize * 1.35
+      wrapper.style.width  = s + 'px'
+      wrapper.style.height = s + 'px'
+      img.style.width      = s + 'px'
+      img.style.height     = s + 'px'
+      fallback.style.width  = s + 'px'
+      fallback.style.height = s + 'px'
+    })
+    wrapper.addEventListener('mouseleave', function() {
+      wrapper.style.width  = pinSize + 'px'
+      wrapper.style.height = pinSize + 'px'
+      img.style.width      = pinSize + 'px'
+      img.style.height     = pinSize + 'px'
+      fallback.style.width  = pinSize + 'px'
+      fallback.style.height = pinSize + 'px'
+    })
     wrapper.addEventListener('touchstart', function(e) {
       e.stopPropagation()
-      expand()
     }, { passive: true })
+
+  } else {
+    // NUM mode (or dimmed pin): show initials
+    var pinBg     = isMatch ? colors.bg     : '#1a1a1a'
+    var pinColor  = isMatch ? colors.border : '#2a2a2a'
+    var pinShadow = isMatch ? ('0 0 8px ' + colors.border + '60') : 'none'
+
+    var el = document.createElement('div')
+    el.style.width          = pinSize + 'px'
+    el.style.height         = pinSize + 'px'
+    el.style.borderRadius   = '50%'
+    el.style.border         = '1px solid ' + pinBorder
+    el.style.background     = pinBg
+    el.style.color          = pinColor
+    el.style.display        = 'flex'
+    el.style.alignItems     = 'center'
+    el.style.justifyContent = 'center'
+    el.style.fontSize       = (pinSize * 0.35) + 'px'
+    el.style.fontWeight     = '600'
+    el.style.fontFamily     = 'monospace'
+    el.style.cursor         = isMatch ? 'pointer' : 'default'
+    el.style.boxShadow      = pinShadow
+    el.style.transition     = 'all 0.15s'
+    el.style.userSelect     = 'none'
+    el.style.pointerEvents  = 'all'
+    el.textContent          = isMatch ? initials : ''
+    el.title                = member.nameZh + ' · ' + member.rank
+
+    wrapper.appendChild(el)
+
+    if (isMatch) {
+      wrapper.addEventListener('mouseenter', function() {
+        var s              = size * 1.35
+        wrapper.style.width    = s + 'px'
+        wrapper.style.height   = s + 'px'
+        el.style.width         = s + 'px'
+        el.style.height        = s + 'px'
+        el.style.fontSize      = (s * 0.35) + 'px'
+        el.style.boxShadow     = '0 0 14px ' + colors.border + '90'
+      })
+      wrapper.addEventListener('mouseleave', function() {
+        wrapper.style.width    = size + 'px'
+        wrapper.style.height   = size + 'px'
+        el.style.width         = size + 'px'
+        el.style.height        = size + 'px'
+        el.style.fontSize      = (size * 0.35) + 'px'
+        el.style.boxShadow     = '0 0 8px ' + colors.border + '60'
+      })
+      wrapper.addEventListener('touchstart', function(e) {
+        e.stopPropagation()
+      }, { passive: true })
+    }
   }
 
   return wrapper
 }
 
-export default function MapView({ members, filteredIds, onMemberClick }) {
+export default function MapView({ members, filteredIds, onMemberClick, mode }) {
   var mapContainerRef = useRef(null)
   var mapRef          = useRef(null)
   var markersRef      = useRef([])
@@ -386,7 +475,7 @@ export default function MapView({ members, filteredIds, onMemberClick }) {
       } else {
         var member  = feature.properties.member
         var isMatch = !filteredIds || filteredIds.has(member.employeeId)
-        var pinEl   = createPinEl(member, isMatch)
+        var pinEl   = createPinEl(member, isMatch, mode)
 
         if (isMatch) {
           var handlePinTap = function(e) {
@@ -403,7 +492,7 @@ export default function MapView({ members, filteredIds, onMemberClick }) {
         markersRef.current.push(pinMarker)
       }
     })
-  }, [filteredIds, setPopupMember])
+  }, [filteredIds, mode, setPopupMember])
 
   useEffect(function() {
     var map = mapRef.current

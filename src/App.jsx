@@ -53,7 +53,6 @@ export default function App() {
         stats={stats}
       />
 
-      {/* Map container */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
 
         {loading && (
@@ -83,12 +82,12 @@ export default function App() {
             members={members}
             filteredIds={filteredIds}
             onMemberClick={setSelectedMember}
+            mode={mode}
           />
         )}
 
       </div>
 
-      {/* Profile Modal */}
       {selectedMember && (
         <ProfileModal
           member={selectedMember}
