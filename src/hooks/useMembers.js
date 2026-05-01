@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { supabase } from '../lib/supabase'
 
 const DEFAULT_STATS = {
   totalMembers: 0,
@@ -12,28 +13,51 @@ export function useMembers(searchQuery, rankFilter, licenseFilter) {
   const [error, setError]     = useState(null)
 
   useEffect(() => {
-    const url = import.meta.env.VITE_DATA_URL
-    const pat = import.meta.env.VITE_GITHUB_PAT
+    async function fetchMembers() {
+      try {
+        const { data, error } = await supabase
+          .from('members')
+          .select('*')
+          .eq('status', 'active')
+          .order('employee_id', { ascending: true })
 
-    fetch(url, {
-      headers: {
-        'Authorization': `token ${pat}`,
-        'Accept': 'application/vnd.github.v3.raw',
-      },
-    })
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.json()
-      })
-      .then(data => {
-        setMembers(data)
+        if (error) throw error
+
+        // Convert from snake_case to camelCase to match existing frontend
+        const converted = data.map(m => ({
+          employeeId:   m.employee_id,
+          nameZh:       m.name_zh,
+          nameEn:       m.name_en,
+          photoUrl:     m.photo_url,
+          state:        m.state,
+          city:         m.city,
+          zipCode:      m.zip_code,
+          sponsorName:  m.sponsor_name,
+          sponsorEmail: m.sponsor_email,
+          rank:         m.rank,
+          email:        m.email,
+          phone:        m.phone,
+          lineId:       m.line_id,
+          whatsapp:     m.whatsapp,
+          facebook:     m.facebook,
+          licenses:     m.licenses || [],
+          skills:       m.skills   || [],
+          intro:        m.intro,
+          joinDate:     m.join_date,
+          status:       m.status,
+          lastUpdated:  m.last_updated,
+        }))
+
+        setMembers(converted)
         setLoading(false)
-      })
-      .catch(err => {
+      } catch (err) {
         console.error('Failed to fetch members:', err)
         setError(err.message)
         setLoading(false)
-      })
+      }
+    }
+
+    fetchMembers()
   }, [])
 
   // Filter members
