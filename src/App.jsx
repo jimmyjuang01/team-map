@@ -53,6 +53,7 @@ export default function App() {
         stats={stats}
       />
 
+      {/* Map container */}
       <div style={{ flex: 1, position: 'relative', overflow: 'hidden' }}>
 
         {loading && (
@@ -87,12 +88,40 @@ export default function App() {
 
       </div>
 
+      {/* Profile Modal */}
       {selectedMember && (
         <ProfileModal
           member={selectedMember}
           onClose={() => setSelectedMember(null)}
         />
       )}
+
+      {/* Privacy notice */}
+      <div style={{
+        position:       'fixed',
+        bottom:         0,
+        left:           0,
+        right:          0,
+        padding:        '4px 16px',
+        background:     'rgba(10,10,10,0.9)',
+        borderTop:      '1px solid #1a1a1a',
+        display:        'flex',
+        alignItems:     'center',
+        justifyContent: 'center',
+        zIndex:         50,
+        pointerEvents:  'none',
+      }}>
+        <p style={{
+          color:         '#2a2a2a',
+          fontSize:      10,
+          fontFamily:    'monospace',
+          letterSpacing: '0.2em',
+          textTransform: 'uppercase',
+          margin:        0,
+        }}>
+          Internal Use Only · Confidential · Do Not Share
+        </p>
+      </div>
 
     </div>
   )
