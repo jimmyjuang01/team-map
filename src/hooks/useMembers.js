@@ -19,12 +19,12 @@ export function useMembers(searchQuery, rankFilter, licenseFilter) {
           .from('members')
           .select('*')
           .eq('status', 'active')
-          .order('employee_id', { ascending: true })
+          .order('agent_id', { ascending: true })
 
         if (error) throw error
 
         const converted = data.map(m => ({
-          employeeId:   m.employee_id,
+          agentId:      m.agent_id,
           nameZh:       m.name_zh,
           nameEn:       m.name_en,
           photoUrl:     m.photo_url,

@@ -23,7 +23,7 @@ const RANK_SIZE = {
   TA:  16,
 }
 
-const AVATAR_SIZE = 36  // Fixed size for all avatar pins
+const AVATAR_SIZE = 36
 
 const AVATAR_COLORS = [
   '#9f1239','#115e59','#3730a3','#9a3412',
@@ -169,7 +169,7 @@ function buildClusterIndex(members, filteredIds) {
     var coords  = getMemberCoordinates(member, index)
     if (!coords) return
 
-    var isMatch = !filteredIds || filteredIds.has(member.employeeId)
+    var isMatch = !filteredIds || filteredIds.has(member.agentId)
     points.push({
       type: 'Feature',
       geometry: { type: 'Point', coordinates: [coords.lng, coords.lat] },
@@ -241,7 +241,6 @@ function createPinEl(member, isMatch, mode) {
   var size      = mode === 'avatar' ? AVATAR_SIZE : (RANK_SIZE[member.rank] || 20)
   var nameParts = (member.nameEn || '').split(' ')
   var initials  = nameParts.map(function(n) { return n[0] }).join('').slice(0, 2) || '??'
-
   var pinBorder = isMatch ? colors.border : '#2a2a2a'
   var pinSize   = isMatch ? size : 8
 
@@ -255,7 +254,6 @@ function createPinEl(member, isMatch, mode) {
   wrapper.style.zIndex         = isMatch ? '10' : '1'
 
   if (mode === 'avatar' && isMatch) {
-    // Avatar mode: show photo
     var photoUrl = getPhotoUrl(member)
     var avatarBg = getAvatarBg(member.nameEn || '')
 
@@ -272,7 +270,6 @@ function createPinEl(member, isMatch, mode) {
     img.style.transition   = 'width 0.15s, height 0.15s'
     img.style.display      = 'block'
 
-    // Fallback to initials if image fails
     img.onerror = function() {
       img.style.display = 'none'
       fallback.style.display = 'flex'
@@ -298,18 +295,18 @@ function createPinEl(member, isMatch, mode) {
 
     wrapper.addEventListener('mouseenter', function() {
       var s = pinSize * 1.35
-      wrapper.style.width  = s + 'px'
-      wrapper.style.height = s + 'px'
-      img.style.width      = s + 'px'
-      img.style.height     = s + 'px'
+      wrapper.style.width   = s + 'px'
+      wrapper.style.height  = s + 'px'
+      img.style.width       = s + 'px'
+      img.style.height      = s + 'px'
       fallback.style.width  = s + 'px'
       fallback.style.height = s + 'px'
     })
     wrapper.addEventListener('mouseleave', function() {
-      wrapper.style.width  = pinSize + 'px'
-      wrapper.style.height = pinSize + 'px'
-      img.style.width      = pinSize + 'px'
-      img.style.height     = pinSize + 'px'
+      wrapper.style.width   = pinSize + 'px'
+      wrapper.style.height  = pinSize + 'px'
+      img.style.width       = pinSize + 'px'
+      img.style.height      = pinSize + 'px'
       fallback.style.width  = pinSize + 'px'
       fallback.style.height = pinSize + 'px'
     })
@@ -318,7 +315,6 @@ function createPinEl(member, isMatch, mode) {
     }, { passive: true })
 
   } else {
-    // NUM mode (or dimmed pin): show initials
     var pinBg     = isMatch ? colors.bg     : '#1a1a1a'
     var pinColor  = isMatch ? colors.border : '#2a2a2a'
     var pinShadow = isMatch ? ('0 0 8px ' + colors.border + '60') : 'none'
@@ -421,8 +417,8 @@ export default function MapView({ members, filteredIds, onMemberClick, mode }) {
     var clusters = index.getClusters(bbox, zoom)
 
     clusters.sort(function(a, b) {
-      var aMatch = a.properties.cluster ? true : (!filteredIds || filteredIds.has(a.properties.member.employeeId))
-      var bMatch = b.properties.cluster ? true : (!filteredIds || filteredIds.has(b.properties.member.employeeId))
+      var aMatch = a.properties.cluster ? true : (!filteredIds || filteredIds.has(a.properties.member.agentId))
+      var bMatch = b.properties.cluster ? true : (!filteredIds || filteredIds.has(b.properties.member.agentId))
       return aMatch === bMatch ? 0 : aMatch ? 1 : -1
     })
 
@@ -435,7 +431,7 @@ export default function MapView({ members, filteredIds, onMemberClick, mode }) {
         var count      = feature.properties.point_count
         var leaves     = index.getLeaves(clusterId, Infinity)
         var hasMatched = leaves.some(function(leaf) {
-          return !filteredIds || filteredIds.has(leaf.properties.member.employeeId)
+          return !filteredIds || filteredIds.has(leaf.properties.member.agentId)
         })
 
         if (filteredIds && !hasMatched) {
@@ -453,7 +449,7 @@ export default function MapView({ members, filteredIds, onMemberClick, mode }) {
 
         var displayCount = filteredIds
           ? leaves.filter(function(leaf) {
-              return filteredIds.has(leaf.properties.member.employeeId)
+              return filteredIds.has(leaf.properties.member.agentId)
             }).length
           : count
 
@@ -474,7 +470,7 @@ export default function MapView({ members, filteredIds, onMemberClick, mode }) {
 
       } else {
         var member  = feature.properties.member
-        var isMatch = !filteredIds || filteredIds.has(member.employeeId)
+        var isMatch = !filteredIds || filteredIds.has(member.agentId)
         var pinEl   = createPinEl(member, isMatch, mode)
 
         if (isMatch) {

@@ -29,7 +29,7 @@ export default function App() {
   const hasActiveFilters = searchQuery || rankFilter.length > 0 || licenseFilter.length > 0
 
   const filteredIds = hasActiveFilters
-    ? new Set(filteredMembers.map(m => m.employeeId))
+    ? new Set(filteredMembers.map(m => m.agentId))
     : null
 
   if (!isAuthenticated) {
