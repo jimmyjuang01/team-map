@@ -1,102 +1,427 @@
-import { useState, useEffect, useMemo } from 'react'
-import { supabase } from '../lib/supabase'
-
-const DEFAULT_STATS = {
-  totalMembers: 0,
-  totalStates:  0,
-  totalCities:  0,
-}
-
-export function useMembers(searchQuery, rankFilter, licenseFilter) {
-  const [members, setMembers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError]     = useState(null)
-
-  useEffect(() => {
-    async function fetchMembers() {
-      try {
-        const { data, error } = await supabase
-          .from('members')
-          .select('*')
-          .eq('status', 'active')
-          .order('agent_id', { ascending: true })
-
-        if (error) throw error
-
-        const converted = data.map(m => ({
-          agentId:        m.agent_id,
-          nameZh:         m.name_zh,
-          nameEn:         m.name_en,
-          photoUrl:       m.photo_url,
-          gender:         m.gender,
-          state:          m.state,
-          city:           m.city,
-          zipCode:        m.zip_code,
-          
-          // 更新：Sponsor 改為 Upline SMD
-          uplineSmdName:  m.upline_smd_name,
-          uplineSmdEmail: m.upline_smd_email,
-          
-          rank:           m.rank,
-          email:          m.email,
-          phone:          m.phone,
-          lineId:         m.line_id,
-          whatsapp:       m.whatsapp,
-          facebook:       m.facebook,
-          licenses:       m.licenses || [],
-          
-          // 新增：其他證照與學歷相關欄位
-          licensesOther:  m.licenses_other,
-          highestDegree:  m.highest_degree,
-          degreeOther:    m.degree_other,
-          
-          skills:         m.skills   || [],
-          intro:          m.intro,
-          joinDate:       m.join_date,
-          status:         m.status,
-          lastUpdated:    m.last_updated,
-        }))
-
-        setMembers(converted)
-        setLoading(false)
-      } catch (err) {
-        console.error('Failed to fetch members:', err)
-        setError(err.message)
-        setLoading(false)
-      }
-    }
-
-    fetchMembers()
-  }, [])
-
-  const filteredMembers = useMemo(() => {
-    return members.filter(m => {
-      if (searchQuery) {
-        const q = searchQuery.toLowerCase()
-        const matchZh = m.nameZh?.toLowerCase().includes(q)
-        const matchEn = m.nameEn?.toLowerCase().includes(q)
-        if (!matchZh && !matchEn) return false
-      }
-      if (rankFilter.length > 0 && !rankFilter.includes(m.rank)) return false
-      if (licenseFilter.length > 0 && !licenseFilter.some(l => m.licenses?.includes(l))) return false
-      return true
-    })
-  }, [members, searchQuery, rankFilter, licenseFilter])
-
-  const stats = useMemo(() => {
-    if (members.length === 0) return DEFAULT_STATS
-    const states = new Set()
-    const cities = new Set()
-    members.forEach(m => {
-      if (m.state) states.add(m.state)
-      if (m.city && m.state) cities.add(`${m.city},${m.state}`)
-    })
-    return {
-      totalMembers: members.length,
-      totalStates:  states.size,
-      totalCities:  cities.size,
-    }
-  }, [members])
-
-  return { members, filteredMembers, loading, error, stats }
-}
+[
+  {
+    "agentId": "EMP-0001",
+    "nameZh": "王大明",
+    "nameEn": "David Wang",
+    "photoUrl": "https://drive.google.com/uc?export=view&id=1PC0JPzIq6Ly3OEtiLrFXraEfcyCfPm2c",
+    "state": "CA",
+    "city": "San Francisco",
+    "zipCode": 94102,
+    "uplineSmdName": "David Wang",
+    "uplineSmdEmail": "david.wang@example.com",
+    "rank": "SMD",
+    "email": "david.wang@example.com",
+    "phone": "+1-415-555-0100",
+    "lineId": "davidwang_tw",
+    "whatsapp": "+886-912-345-678",
+    "facebook": "https://facebook.com/davidwang",
+    "licenses": [
+      "Life",
+      "Investment",
+      "CFP"
+    ],
+    "intro": "20-year senior advisor specializing in cross-generational wealth transfer.",
+    "joinDate": "2005-06-01",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0002",
+    "nameZh": "陳志明",
+    "nameEn": "John Chen",
+    "photoUrl": "https://drive.google.com/uc?export=view&id=1x8t7Hw4ZJNig5BZeYKBkb-kwtWzctPJP",
+    "state": "NY",
+    "city": "New York",
+    "zipCode": 10001,
+    "uplineSmdName": "David Wang",
+    "uplineSmdEmail": "david.wang@example.com",
+    "rank": "MD",
+    "email": "john.chen@example.com",
+    "phone": "+1-212-555-0200",
+    "lineId": "johnchen_tw",
+    "whatsapp": "",
+    "facebook": "https://facebook.com/johnchen",
+    "licenses": [
+      "Life",
+      "P&C",
+      "Securities"
+    ],
+    "intro": "Focuses on business owner tax and insurance integration.",
+    "joinDate": "2015-03-15",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0003",
+    "nameZh": "林佳玲",
+    "nameEn": "Grace Lin",
+    "photoUrl": "https://drive.google.com/uc?export=view&id=1DRPjpvHhMSWUZV9heCDnriMkShaZiwYV",
+    "state": "TX",
+    "city": "Austin",
+    "zipCode": 73301,
+    "uplineSmdName": "John Chen",
+    "uplineSmdEmail": "john.chen@example.com",
+    "rank": "A",
+    "email": "grace.lin@example.com",
+    "phone": "+1-512-555-0300",
+    "lineId": "gracelin",
+    "whatsapp": "+886-987-654-321",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "Investment"
+    ],
+    "intro": "Helps new associates grow; specializes in FX and allocation.",
+    "joinDate": "2021-09-01",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0004",
+    "nameZh": "劉家豪",
+    "nameEn": "Jerry Liu",
+    "photoUrl": "https://ui-avatars.com/api/?name=JL&background=3730a3&color=fff&size=400&bold=true",
+    "state": "NY",
+    "city": "New York",
+    "zipCode": 10002,
+    "uplineSmdName": "David Wang",
+    "uplineSmdEmail": "david.wang@example.com",
+    "rank": "SMD",
+    "email": "jerry.liu@example.com",
+    "phone": "+1-212-555-0201",
+    "lineId": "jerryliu",
+    "whatsapp": "",
+    "facebook": "https://facebook.com/jerryliu",
+    "licenses": [
+      "Life",
+      "Investment",
+      "CFP",
+      "RFC"
+    ],
+    "intro": "Senior advisor in NYC financial district with 18 years experience.",
+    "joinDate": "2008-01-20",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0005",
+    "nameZh": "白俊廷",
+    "nameEn": "Jeff Pai",
+    "photoUrl": "https://ui-avatars.com/api/?name=JP&background=065f46&color=fff&size=400&bold=true",
+    "state": "WA",
+    "city": "Seattle",
+    "zipCode": 98101,
+    "uplineSmdName": "David Wang",
+    "uplineSmdEmail": "david.wang@example.com",
+    "rank": "MD",
+    "email": "jeff.pai@example.com",
+    "phone": "+1-206-555-0600",
+    "lineId": "jeffpai",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "Investment",
+      "CFP"
+    ],
+    "intro": "Seattle tech industry advisor specializing in executive financial planning.",
+    "joinDate": "2014-04-10",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0006",
+    "nameZh": "鄭明德",
+    "nameEn": "Tom Cheng",
+    "photoUrl": "https://ui-avatars.com/api/?name=TC&background=9a3412&color=fff&size=400&bold=true",
+    "state": "TX",
+    "city": "Houston",
+    "zipCode": 77001,
+    "uplineSmdName": "David Wang",
+    "uplineSmdEmail": "david.wang@example.com",
+    "rank": "MD",
+    "email": "tom.cheng@example.com",
+    "phone": "+1-713-555-0301",
+    "lineId": "tomcheng",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "P&C",
+      "CFP"
+    ],
+    "intro": "Energy sector specialist with extensive Houston market experience.",
+    "joinDate": "2014-08-20",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0007",
+    "nameZh": "杜美雲",
+    "nameEn": "Mei Tu",
+    "photoUrl": "https://ui-avatars.com/api/?name=MT&background=9f1239&color=fff&size=400&bold=true",
+    "state": "IL",
+    "city": "Chicago",
+    "zipCode": 60601,
+    "uplineSmdName": "David Wang",
+    "uplineSmdEmail": "david.wang@example.com",
+    "rank": "MD",
+    "email": "mei.tu@example.com",
+    "phone": "+1-312-555-0800",
+    "lineId": "meitu",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "P&C",
+      "CFP"
+    ],
+    "intro": "Chicago small business specialist with 11 years of experience.",
+    "joinDate": "2015-09-01",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0008",
+    "nameZh": "馬志遠",
+    "nameEn": "Andrew Ma",
+    "photoUrl": "https://ui-avatars.com/api/?name=AM&background=5b21b6&color=fff&size=400&bold=true",
+    "state": "MA",
+    "city": "Boston",
+    "zipCode": 2101,
+    "uplineSmdName": "Jerry Liu",
+    "uplineSmdEmail": "jerry.liu@example.com",
+    "rank": "MD",
+    "email": "andrew.ma@example.com",
+    "phone": "+1-617-555-0500",
+    "lineId": "andrewma",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "P&C",
+      "CFP"
+    ],
+    "intro": "Boston biotech industry advisor.",
+    "joinDate": "2015-02-01",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0009",
+    "nameZh": "盧建成",
+    "nameEn": "Luke Lu",
+    "photoUrl": "https://ui-avatars.com/api/?name=LL&background=075985&color=fff&size=400&bold=true",
+    "state": "FL",
+    "city": "Miami",
+    "zipCode": 33101,
+    "uplineSmdName": "David Wang",
+    "uplineSmdEmail": "david.wang@example.com",
+    "rank": "MD",
+    "email": "luke.lu@example.com",
+    "phone": "+1-305-555-0700",
+    "lineId": "lukelu",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "CFP"
+    ],
+    "intro": "Miami specialist for cross-border families and Latin American clients.",
+    "joinDate": "2016-03-15",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0010",
+    "nameZh": "陳怡君",
+    "nameEn": "Jenny Chen",
+    "photoUrl": "https://ui-avatars.com/api/?name=JC&background=9f1239&color=fff&size=400&bold=true",
+    "state": "CA",
+    "city": "San Jose",
+    "zipCode": 95101,
+    "uplineSmdName": "Amy Lee",
+    "uplineSmdEmail": "amy.lee@example.com",
+    "rank": "A",
+    "email": "jenny.chen@example.com",
+    "phone": "+1-408-555-0103",
+    "lineId": "jennychen",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life"
+    ],
+    "intro": "Silicon Valley tech professional retirement planning specialist.",
+    "joinDate": "2018-08-15",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0011",
+    "nameZh": "林俊宏",
+    "nameEn": "Jason Lin",
+    "photoUrl": "https://ui-avatars.com/api/?name=JL&background=065f46&color=fff&size=400&bold=true",
+    "state": "CA",
+    "city": "San Francisco",
+    "zipCode": 94103,
+    "uplineSmdName": "David Wang",
+    "uplineSmdEmail": "david.wang@example.com",
+    "rank": "A",
+    "email": "jason.lin@example.com",
+    "phone": "+1-415-555-0104",
+    "lineId": "jasonlin",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "EA"
+    ],
+    "intro": "FX and USD policy planning specialist.",
+    "joinDate": "2019-03-01",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0012",
+    "nameZh": "范瑞英",
+    "nameEn": "Rita Fan",
+    "photoUrl": "https://ui-avatars.com/api/?name=RF&background=5b21b6&color=fff&size=400&bold=true",
+    "state": "PA",
+    "city": "Philadelphia",
+    "zipCode": 19101,
+    "uplineSmdName": "Jerry Liu",
+    "uplineSmdEmail": "jerry.liu@example.com",
+    "rank": "MD",
+    "email": "rita.fan@example.com",
+    "phone": "+1-215-555-1200",
+    "lineId": "ritafan",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "CPA"
+    ],
+    "intro": "Philadelphia wealth transfer specialist.",
+    "joinDate": "2016-07-20",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0013",
+    "nameZh": "羅文昇",
+    "nameEn": "Wade Lo",
+    "photoUrl": "https://ui-avatars.com/api/?name=WL&background=9a3412&color=fff&size=400&bold=true",
+    "state": "CO",
+    "city": "Denver",
+    "zipCode": 80201,
+    "uplineSmdName": "David Wang",
+    "uplineSmdEmail": "david.wang@example.com",
+    "rank": "A",
+    "email": "wade.lo@example.com",
+    "phone": "+1-303-555-1000",
+    "lineId": "wadelo",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life"
+    ],
+    "intro": "Denver retirement planning advisor.",
+    "joinDate": "2020-06-15",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0014",
+    "nameZh": "朱家欣",
+    "nameEn": "Mia Chu",
+    "photoUrl": "https://ui-avatars.com/api/?name=MC&background=075985&color=fff&size=400&bold=true",
+    "state": "AZ",
+    "city": "Phoenix",
+    "zipCode": 85001,
+    "uplineSmdName": "Tom Cheng",
+    "uplineSmdEmail": "tom.cheng@example.com",
+    "rank": "A",
+    "email": "mia.chu@example.com",
+    "phone": "+1-602-555-1100",
+    "lineId": "miachu",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life",
+      "Health"
+    ],
+    "intro": "Phoenix area insurance specialist.",
+    "joinDate": "2021-03-10",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  },
+  {
+    "agentId": "EMP-0015",
+    "nameZh": "方偉倫",
+    "nameEn": "Leon Fang",
+    "photoUrl": "https://ui-avatars.com/api/?name=LF&background=3730a3&color=fff&size=400&bold=true",
+    "state": "HI",
+    "city": "Honolulu",
+    "zipCode": 96801,
+    "uplineSmdName": "David Wang",
+    "uplineSmdEmail": "david.wang@example.com",
+    "rank": "A",
+    "email": "leon.fang@example.com",
+    "phone": "+1-808-555-2000",
+    "lineId": "leonfang",
+    "whatsapp": "",
+    "facebook": "",
+    "licenses": [
+      "Life"
+    ],
+    "intro": "Honolulu specialist for cross-border Pacific Rim families.",
+    "joinDate": "2019-12-10",
+    "status": "active",
+    "lastUpdated": "2026-04-22",
+    "gender": "",
+    "highestDegree": "",
+    "licensesOther": ""
+  }
+]
