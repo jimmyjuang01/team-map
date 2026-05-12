@@ -1,31 +1,11 @@
 import { useEffect, useState } from 'react'
 import { X, Mail, Phone, MapPin, Calendar, User } from 'lucide-react'
 
-// 方案 C：金屬質感，9 個職級
 const RANK_COLORS = {
-  SEVC:     { bg: '#0c0a09', border: '#fef9c3' }, // 金亮
-  EVC:      { bg: '#0c0a09', border: '#fbbf24' }, // 金中
-  'CEO/MD': { bg: '#0c0a09', border: '#d97706' }, // 金暗
-  EMD:      { bg: '#1a1a1a', border: '#e5e7eb' }, // 鋼灰亮
-  SMD:      { bg: '#1a1a1a', border: '#9ca3af' }, // 鋼灰中
-  MD:       { bg: '#1a1a1a', border: '#6b7280' }, // 鋼灰暗
-  SA:       { bg: '#1c1917', border: '#d97706' }, // 古銅亮
-  A:        { bg: '#1c1917', border: '#b45309' }, // 古銅中
-  TA:       { bg: '#1c1917', border: '#78716c' }, // 古銅暗
-}
-
-// white 文字：TA, A, MD, SMD（border 較暗）
-// #0a0a0a 文字：SA, EMD, CEO/MD, EVC, SEVC（border 較亮）
-const RANK_TEXT_COLOR = {
-  SEVC:     '#0a0a0a',
-  EVC:      '#0a0a0a',
-  'CEO/MD': '#0a0a0a',
-  EMD:      '#0a0a0a',
-  SMD:      'white',
-  MD:       'white',
-  SA:       '#0a0a0a',
-  A:        'white',
-  TA:       'white',
+  SMD: { border: '#fbbf24', bg: '#451a03' },
+  MD:  { border: '#d97706', bg: '#3b1f00' },
+  A:   { border: '#a8a29e', bg: '#292524' },
+  TA:  { border: '#57534e', bg: '#1c1917' },
 }
 
 const AVATAR_COLORS = [
@@ -99,33 +79,29 @@ function Tag({ label, type }) {
 
 export default function ProfileModal({ member, onClose }) {
   const isMobile = useIsMobile()
-  const [visible, setVisible]       = useState(false)
-  const [bioVisible, setBioVisible] = useState(false)
+  const [visible, setVisible] = useState(false)
 
   if (!member) return null
 
-  const colors        = RANK_COLORS[member.rank]     || RANK_COLORS.TA
-  const rankTextColor = RANK_TEXT_COLOR[member.rank] || 'white'
-  const initials      = member.nameEn?.split(' ').map(n => n[0]).join('').slice(0, 2) || '??'
-  const avatarBg      = getAvatarBg(member.nameEn || '')
-  const hasPhoto      = member.photoUrl && !member.photoUrl.includes('ui-avatars')
+  const colors   = RANK_COLORS[member.rank] || RANK_COLORS.TA
+  const initials = member.nameEn?.split(' ').map(n => n[0]).join('').slice(0, 2) || '??'
+  const avatarBg = getAvatarBg(member.nameEn || '')
+  const hasPhoto = member.photoUrl && !member.photoUrl.includes('ui-avatars')
 
-  // Ph.D 後綴：空格分隔，無逗號
-  const isPhD     = member.highestDegree === 'Ph.D'
-  const displayZh = isPhD ? `${member.nameZh} Ph.D` : member.nameZh
-  const displayEn = isPhD ? `${member.nameEn} Ph.D` : member.nameEn
-
+  // Animate in
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), 10)
     return () => clearTimeout(t)
   }, [])
 
+  // Close on ESC
   useEffect(() => {
     const handleKey = (e) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
   }, [onClose])
 
+  // Prevent body scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     return () => { document.body.style.overflow = '' }
@@ -136,22 +112,24 @@ export default function ProfileModal({ member, onClose }) {
     onClose()
   }
 
+  // Mobile: full-screen bottom sheet
   const mobileModalStyle = {
-    position:     'fixed',
-    bottom:       0,
-    left:         0,
-    right:        0,
-    height:       '92vh',
-    background:   '#171717',
-    border:       '1px solid #262626',
+    position:    'fixed',
+    bottom:      0,
+    left:        0,
+    right:       0,
+    height:      '92vh',
+    background:  '#171717',
+    border:      '1px solid #262626',
     borderRadius: '16px 16px 0 0',
-    boxShadow:    '0 -8px 40px rgba(0,0,0,0.8)',
-    zIndex:       201,
-    overflowY:    'auto',
-    transform:    visible ? 'translateY(0)' : 'translateY(100%)',
-    transition:   'transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
+    boxShadow:   '0 -8px 40px rgba(0,0,0,0.8)',
+    zIndex:      201,
+    overflowY:   'auto',
+    transform:   visible ? 'translateY(0)' : 'translateY(100%)',
+    transition:  'transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
   }
 
+  // Desktop: centered modal
   const desktopModalStyle = {
     position:   'fixed',
     top:        '50%',
@@ -173,6 +151,7 @@ export default function ProfileModal({ member, onClose }) {
 
   return (
     <>
+      {/* Overlay */}
       <div
         onClick={handleClose}
         style={{
@@ -186,11 +165,16 @@ export default function ProfileModal({ member, onClose }) {
         }}
       />
 
+      {/* Modal */}
       <div style={modalStyle} onClick={e => e.stopPropagation()}>
 
+        {/* Mobile drag handle */}
         {isMobile && (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-            <div style={{ width: 40, height: 4, borderRadius: 2, background: '#404040' }} />
+            <div style={{
+              width: 40, height: 4, borderRadius: 2,
+              background: '#404040',
+            }} />
           </div>
         )}
 
@@ -208,7 +192,7 @@ export default function ProfileModal({ member, onClose }) {
         }}>
           <span style={{
             background:    colors.border,
-            color:         rankTextColor,
+            color:         member.rank === 'MD' || member.rank === 'TA' ? 'white' : '#0a0a0a',
             fontSize:      11, fontWeight: 700, letterSpacing: '0.15em',
             padding:       '3px 10px', fontFamily: 'monospace',
           }}>
@@ -262,10 +246,10 @@ export default function ProfileModal({ member, onClose }) {
             color: '#fef3c7', fontSize: isMobile ? 28 : 26,
             fontFamily: 'Georgia, serif', margin: 0, textAlign: 'center',
           }}>
-            {displayZh}
+            {member.nameZh}
           </h2>
           <p style={{ color: '#737373', fontSize: 13, fontFamily: 'monospace', margin: '6px 0 0' }}>
-            {displayEn}
+            {member.nameEn}
           </p>
           <p style={{
             color: '#525252', fontSize: 11, fontFamily: 'monospace',
@@ -280,66 +264,40 @@ export default function ProfileModal({ member, onClose }) {
 
           <Section label="Contact">
             <InfoRow icon={Mail}  label="Email"    value={member.email}    href={'mailto:' + member.email} />
-            <InfoRow icon={Phone} label="Phone"    value={member.phone}    href={member.phone ? 'tel:' + member.phone : null} />
+            <InfoRow icon={Phone} label="Phone"    value={member.phone}    href={'tel:' + member.phone} />
             <InfoRow icon={User}  label="Line"     value={member.lineId}   href={null} />
             <InfoRow icon={Phone} label="WhatsApp" value={member.whatsapp} href={member.whatsapp ? 'https://wa.me/' + member.whatsapp.replace(/\D/g, '') : null} />
             <InfoRow icon={User}  label="Facebook" value={member.facebook ? 'Profile' : null} href={member.facebook} />
           </Section>
 
-          {/* Licenses：顯示全部，包含 licensesOther */}
-          {((member.licenses && member.licenses.length > 0) || member.licensesOther) && (
+          {member.licenses && member.licenses.length > 0 && (
             <Section label="Licenses">
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {member.licenses?.map(l => <Tag key={l} label={l} type="license" />)}
-                {member.licensesOther && <Tag label={member.licensesOther} type="license" />}
+                {member.licenses.map(l => <Tag key={l} label={l} type="license" />)}
               </div>
             </Section>
           )}
 
-          {/* Bio：預設完全隱藏，點擊按鈕展開 */}
+          {member.skills && member.skills.length > 0 && (
+            <Section label="Areas of Expertise">
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {member.skills.map(s => <Tag key={s} label={s} type="skill" />)}
+              </div>
+            </Section>
+          )}
+
           {member.intro && (
-            <div style={{ marginBottom: 20 }}>
-              <button
-                onClick={() => setBioVisible(!bioVisible)}
-                style={{
-                  display:       'flex',
-                  alignItems:    'center',
-                  gap:           6,
-                  background:    'none',
-                  border:        '1px solid #404040',
-                  color:         '#a3a3a3',
-                  fontSize:      10,
-                  letterSpacing: '0.25em',
-                  textTransform: 'uppercase',
-                  fontFamily:    'monospace',
-                  padding:       '4px 10px',
-                  cursor:        'pointer',
-                  marginBottom:  bioVisible ? 10 : 0,
-                  transition:    'color 0.15s, border-color 0.15s',
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.color = '#fcd34d'
-                  e.currentTarget.style.borderColor = '#fcd34d'
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.color = '#a3a3a3'
-                  e.currentTarget.style.borderColor = '#404040'
-                }}
-              >
-                {bioVisible ? '▲ Bio' : '▼ Bio'}
-              </button>
-              {bioVisible && (
-                <p style={{ color: '#a3a3a3', fontSize: 13, lineHeight: 1.7, margin: 0 }}>
-                  {member.intro}
-                </p>
-              )}
-            </div>
+            <Section label="Bio">
+              <p style={{ color: '#a3a3a3', fontSize: 13, lineHeight: 1.7, margin: 0 }}>
+                {member.intro}
+              </p>
+            </Section>
           )}
 
           <Section label="Organization">
-            <InfoRow icon={User}     label="Upline SMD" value={member.uplineSmdName} href={null} />
-            <InfoRow icon={Calendar} label="Joined"     value={member.joinDate}      href={null} />
-            <InfoRow icon={MapPin}   label="Location"   value={member.city + ', ' + member.state} href={null} />
+            <InfoRow icon={User}     label="Sponsor"  value={member.sponsorName} href={null} />
+            <InfoRow icon={Calendar} label="Joined"   value={member.joinDate}    href={null} />
+            <InfoRow icon={MapPin}   label="Location" value={member.city + ', ' + member.state} href={null} />
           </Section>
 
         </div>

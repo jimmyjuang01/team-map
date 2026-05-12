@@ -11,28 +11,18 @@ export default function Header({
 }) {
   const [showFilters, setShowFilters] = useState(false)
 
-  // 9 個職級，從高到低排列
-  const RANKS = ['SEVC', 'EVC', 'CEO/MD', 'EMD', 'SMD', 'MD', 'SA', 'A', 'TA']
-
-  // 方案 C：金屬質感，低職級暗色 → 高職級亮色
+  const RANKS = ['SMD', 'MD', 'A', 'TA']
   const RANK_COLORS = {
-    // 組 3（高階）：金色系，深金黑背景
-    SEVC:     'bg-[#0c0a09] text-[#fef9c3]', // 金亮
-    EVC:      'bg-[#0c0a09] text-[#fbbf24]', // 金中
-    'CEO/MD': 'bg-[#0c0a09] text-[#d97706]', // 金暗
-    // 組 2（中階）：鋼灰系，深鋼背景
-    EMD:      'bg-[#1a1a1a] text-[#e5e7eb]', // 鋼灰亮
-    SMD:      'bg-[#1a1a1a] text-[#9ca3af]', // 鋼灰中
-    MD:       'bg-[#1a1a1a] text-[#6b7280]', // 鋼灰暗
-    // 組 1（入門）：古銅系，深棕背景
-    SA:       'bg-[#1c1917] text-[#d97706]', // 古銅亮
-    A:        'bg-[#1c1917] text-[#b45309]', // 古銅中
-    TA:       'bg-[#1c1917] text-[#78716c]', // 古銅暗
+    SMD: 'bg-amber-400 text-neutral-900',
+    MD:  'bg-amber-600 text-white',
+    A:   'bg-stone-400 text-neutral-900',
+    TA:  'bg-stone-600 text-white',
   }
 
-  // 更新後的執照清單
   const ALL_LICENSES = [
-    'Life', 'Health', 'Series 6/63', 'CPA', 'EA', 'Other',
+    'Life', 'P&C', 'Investment',
+    'Series 6', 'Series 7', 'Series 63', 'Series 65', 'Series 66',
+    'CFP', 'RFC', 'IARFC', 'ChFC', 'CLU',
   ]
 
   const toggleRank = (rank) => {
@@ -94,7 +84,7 @@ export default function Header({
         </div>
       </div>
 
-      {/* Stats row */}
+      {/* Stats row — always visible, shows 0 while loading */}
       <div className="flex items-center gap-4 mt-3 pb-3 border-b border-neutral-900">
         <StatItem value={stats.totalMembers} label="Members" />
         <div className="w-px h-6 bg-neutral-800" />
@@ -162,7 +152,7 @@ export default function Header({
                   onClick={() => toggleRank(r)}
                   className={`px-3 py-1 text-xs border font-mono transition-colors
                     ${rankFilter.includes(r)
-                      ? `${RANK_COLORS[r]} border-transparent font-bold`
+                      ? `${RANK_COLORS[r]} border-transparent`
                       : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'
                     }`}
                 >
@@ -181,7 +171,7 @@ export default function Header({
                   onClick={() => toggleLicense(l)}
                   className={`px-2 py-0.5 text-xs border transition-colors
                     ${licenseFilter.includes(l)
-                      ? 'bg-amber-400 text-neutral-900 border-transparent font-bold'
+                      ? 'bg-amber-400 text-neutral-900 border-transparent'
                       : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'
                     }`}
                 >

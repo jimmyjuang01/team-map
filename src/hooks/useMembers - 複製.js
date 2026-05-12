@@ -24,37 +24,28 @@ export function useMembers(searchQuery, rankFilter, licenseFilter) {
         if (error) throw error
 
         const converted = data.map(m => ({
-          agentId:        m.agent_id,
-          nameZh:         m.name_zh,
-          nameEn:         m.name_en,
-          photoUrl:       m.photo_url,
-          gender:         m.gender,
-          state:          m.state,
-          city:           m.city,
-          zipCode:        m.zip_code,
-          
-          // 更新：Sponsor 改為 Upline SMD
-          uplineSmdName:  m.upline_smd_name,
-          uplineSmdEmail: m.upline_smd_email,
-          
-          rank:           m.rank,
-          email:          m.email,
-          phone:          m.phone,
-          lineId:         m.line_id,
-          whatsapp:       m.whatsapp,
-          facebook:       m.facebook,
-          licenses:       m.licenses || [],
-          
-          // 新增：其他證照與學歷相關欄位
-          licensesOther:  m.licenses_other,
-          highestDegree:  m.highest_degree,
-          degreeOther:    m.degree_other,
-          
-          skills:         m.skills   || [],
-          intro:          m.intro,
-          joinDate:       m.join_date,
-          status:         m.status,
-          lastUpdated:    m.last_updated,
+          agentId:      m.agent_id,
+          nameZh:       m.name_zh,
+          nameEn:       m.name_en,
+          photoUrl:     m.photo_url,
+          gender:       m.gender,
+          state:        m.state,
+          city:         m.city,
+          zipCode:      m.zip_code,
+          sponsorName:  m.sponsor_name,
+          sponsorEmail: m.sponsor_email,
+          rank:         m.rank,
+          email:        m.email,
+          phone:        m.phone,
+          lineId:       m.line_id,
+          whatsapp:     m.whatsapp,
+          facebook:     m.facebook,
+          licenses:     m.licenses || [],
+          skills:       m.skills   || [],
+          intro:        m.intro,
+          joinDate:     m.join_date,
+          status:       m.status,
+          lastUpdated:  m.last_updated,
         }))
 
         setMembers(converted)

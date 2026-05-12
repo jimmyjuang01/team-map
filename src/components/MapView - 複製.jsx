@@ -9,44 +9,18 @@ const MAP_STYLE = 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.j
 const DEFAULT_MALE_URL   = 'https://yvqohxqzwgngninjxxrx.supabase.co/storage/v1/object/public/avatars/default_male.png'
 const DEFAULT_FEMALE_URL = 'https://yvqohxqzwgngninjxxrx.supabase.co/storage/v1/object/public/avatars/default_female.png'
 
-// 方案 C：金屬質感，9 個職級
 const RANK_COLORS = {
-  SEVC:     { bg: '#0c0a09', border: '#fef9c3' }, // 金亮
-  EVC:      { bg: '#0c0a09', border: '#fbbf24' }, // 金中
-  'CEO/MD': { bg: '#0c0a09', border: '#d97706' }, // 金暗
-  EMD:      { bg: '#1a1a1a', border: '#e5e7eb' }, // 鋼灰亮
-  SMD:      { bg: '#1a1a1a', border: '#9ca3af' }, // 鋼灰中
-  MD:       { bg: '#1a1a1a', border: '#6b7280' }, // 鋼灰暗
-  SA:       { bg: '#1c1917', border: '#d97706' }, // 古銅亮
-  A:        { bg: '#1c1917', border: '#b45309' }, // 古銅中
-  TA:       { bg: '#1c1917', border: '#78716c' }, // 古銅暗
+  SMD: { border: '#fbbf24', bg: '#451a03' },
+  MD:  { border: '#d97706', bg: '#3b1f00' },
+  A:   { border: '#a8a29e', bg: '#292524' },
+  TA:  { border: '#57534e', bg: '#1c1917' },
 }
 
-// 尺寸：14px（TA）→ 38px（SEVC）
 const RANK_SIZE = {
-  SEVC:     38,
-  EVC:      35,
-  'CEO/MD': 32,
-  EMD:      29,
-  SMD:      26,
-  MD:       23,
-  SA:       20,
-  A:        17,
-  TA:       14,
-}
-
-// white 文字：TA, A, MD, SMD（border 較暗）
-// #0a0a0a 文字：SA, EMD, CEO/MD, EVC, SEVC（border 較亮）
-const RANK_TEXT_COLOR = {
-  SEVC:     '#0a0a0a',
-  EVC:      '#0a0a0a',
-  'CEO/MD': '#0a0a0a',
-  EMD:      '#0a0a0a',
-  SMD:      'white',
-  MD:       'white',
-  SA:       '#0a0a0a',
-  A:        'white',
-  TA:       'white',
+  SMD: 32,
+  MD:  26,
+  A:   20,
+  TA:  16,
 }
 
 const AVATAR_SIZE = 36
@@ -72,16 +46,10 @@ function getPhotoUrl(member) {
 }
 
 function MemberPopup({ member, onClose, onViewProfile }) {
-  const colors        = RANK_COLORS[member.rank]      || RANK_COLORS.TA
-  const rankTextColor = RANK_TEXT_COLOR[member.rank]  || 'white'
-  const initials      = member.nameEn?.split(' ').map(n => n[0]).join('').slice(0, 2) || '??'
-  const avatarBg      = getAvatarBg(member.nameEn || '')
-  const photoUrl      = getPhotoUrl(member)
-
-  // Ph.D 後綴：空格分隔，無逗號
-  const isPhD     = member.highestDegree === 'Ph.D'
-  const displayZh = isPhD ? `${member.nameZh} Ph.D` : member.nameZh
-  const displayEn = isPhD ? `${member.nameEn} Ph.D` : member.nameEn
+  const colors   = RANK_COLORS[member.rank] || RANK_COLORS.TA
+  const initials = member.nameEn?.split(' ').map(n => n[0]).join('').slice(0, 2) || '??'
+  const avatarBg = getAvatarBg(member.nameEn || '')
+  const photoUrl = getPhotoUrl(member)
 
   return (
     <div style={{
@@ -103,7 +71,7 @@ function MemberPopup({ member, onClose, onViewProfile }) {
       }}>
         <span style={{
           background:    colors.border,
-          color:         rankTextColor,
+          color:         member.rank === 'MD' || member.rank === 'TA' ? 'white' : '#0a0a0a',
           fontSize:      10, fontWeight: 700,
           letterSpacing: '0.15em', padding: '2px 8px', fontFamily: 'monospace',
         }}>
@@ -147,10 +115,10 @@ function MemberPopup({ member, onClose, onViewProfile }) {
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ color: '#fef3c7', fontSize: 16, fontFamily: 'Georgia, serif', margin: 0 }}>
-            {displayZh}
+            {member.nameZh}
           </p>
           <p style={{ color: '#737373', fontSize: 11, fontFamily: 'monospace', margin: '4px 0 0' }}>
-            {displayEn}
+            {member.nameEn}
           </p>
           <p style={{ color: '#525252', fontSize: 10, fontFamily: 'monospace', margin: '4px 0 0', letterSpacing: '0.1em' }}>
             {member.city}, {member.state}
@@ -158,10 +126,9 @@ function MemberPopup({ member, onClose, onViewProfile }) {
         </div>
       </div>
 
-      {/* 顯示所有 licenses，包含 licensesOther，不限制數量 */}
-      {((member.licenses && member.licenses.length > 0) || member.licensesOther) && (
+      {member.licenses && member.licenses.length > 0 && (
         <div style={{ padding: '0 12px 10px', display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-          {member.licenses?.map(function(l) {
+          {member.licenses.slice(0, 4).map(function(l) {
             return (
               <span key={l} style={{
                 background: 'rgba(120,53,15,0.3)', border: '1px solid #78350f',
@@ -170,13 +137,6 @@ function MemberPopup({ member, onClose, onViewProfile }) {
               }}>{l}</span>
             )
           })}
-          {member.licensesOther && (
-            <span style={{
-              background: 'rgba(120,53,15,0.3)', border: '1px solid #78350f',
-              color: '#fcd34d', fontSize: 10, padding: '2px 6px',
-              borderRadius: 3, fontFamily: 'monospace',
-            }}>{member.licensesOther}</span>
-          )}
         </div>
       )}
 
@@ -186,7 +146,7 @@ function MemberPopup({ member, onClose, onViewProfile }) {
         style={{
           display: 'block', width: '100%', padding: '12px',
           background: colors.border,
-          color: rankTextColor,
+          color: member.rank === 'MD' || member.rank === 'TA' ? 'white' : '#0a0a0a',
           border: 'none', cursor: 'pointer', fontFamily: 'monospace',
           fontSize: 11, fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase',
         }}
@@ -568,7 +528,6 @@ export default function MapView({ members, filteredIds, onMemberClick, mode }) {
         />
       )}
 
-      {/* Rank 圖例 */}
       <div style={{
         position: 'absolute', bottom: 48, left: 16,
         background: 'rgba(10,10,10,0.85)',
